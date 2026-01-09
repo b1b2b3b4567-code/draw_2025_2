@@ -14,18 +14,13 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap');
 
-    /* ===== Inside Out palette (Joy / Sadness / Anger / Disgust / Fear) ===== */
+    /* ===== Inside Out palette ===== */
     :root{
-      --joy:#ffd34a;        /* Joy */
-      --joy2:#fff1a8;
-      --sad:#2e75ff;        /* Sadness */
-      --sad2:#8cc9ff;
-      --anger:#ff3b30;      /* Anger */
-      --anger2:#ff7a70;
-      --disgust:#37d66b;    /* Disgust */
-      --disgust2:#a7f3c5;
-      --fear:#7c3aed;       /* Fear */
-      --fear2:#c4b5fd;
+      --joy:#ffd34a;        --joy2:#fff1a8;
+      --sad:#2e75ff;        --sad2:#8cc9ff;
+      --anger:#ff3b30;      --anger2:#ff7a70;
+      --disgust:#37d66b;    --disgust2:#a7f3c5;
+      --fear:#7c3aed;       --fear2:#c4b5fd;
 
       --ink:#0b1020;
       --ink2:#0a0f1e;
@@ -34,7 +29,6 @@
 
       --glassA: rgba(255,255,255,.12);
       --glassB: rgba(255,255,255,.06);
-      --stroke: rgba(255,255,255,.18);
       --stroke2: rgba(255,255,255,.10);
     }
 
@@ -77,9 +71,7 @@
         inset 0 1px 0 rgba(255,255,255,.10);
     }
 
-    .rainbow-stroke{
-      position:relative;
-    }
+    .rainbow-stroke{ position:relative; }
     .rainbow-stroke:before{
       content:"";
       position:absolute;
@@ -158,16 +150,9 @@
       border-color: rgba(255,59,48,.45);
     }
 
-    button:disabled{
-      cursor:not-allowed;
-      opacity:.45;
-      transform:none !important;
-      filter:saturate(.85);
-    }
+    button:disabled{ cursor:not-allowed; opacity:.45; transform:none !important; filter:saturate(.85); }
 
-    .winner-card{
-      animation: winnerPop .55s cubic-bezier(.16, 1, .3, 1) forwards;
-    }
+    .winner-card{ animation: winnerPop .55s cubic-bezier(.16, 1, .3, 1) forwards; }
     @keyframes winnerPop{
       from{ transform: scale(.94) translateY(14px); opacity:0; filter: blur(2px); }
       to  { transform: scale(1) translateY(0); opacity:1; filter: blur(0); }
@@ -188,7 +173,7 @@
 <body>
   <div id="app" class="min-h-screen flex flex-col px-4 py-6 md:px-8 md:py-8 max-w-7xl mx-auto">
 
-    <!-- Header (已改字樣) -->
+    <!-- Header -->
     <header class="sticky top-0 z-50 mb-6 glass-card rainbow-stroke rounded-3xl px-4 md:px-6 py-4">
       <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div class="flex items-center gap-3">
@@ -206,30 +191,25 @@
             @click="changeView('stage')"
             class="btn btn-ghost px-4 py-2"
             :style="view==='stage' ? 'border-color: rgba(255,211,74,.55); box-shadow: 0 0 0 1px rgba(255,211,74,.10)' : ''"
-          >
-            抽獎舞台
-          </button>
+          >抽獎舞台</button>
 
           <button
             @click="changeView('admin')"
             class="btn btn-ghost px-4 py-2"
             :style="view==='admin' ? 'border-color: rgba(46,117,255,.55); box-shadow: 0 0 0 1px rgba(46,117,255,.10)' : ''"
-          >
-            後台管理
-          </button>
+          >後台管理</button>
         </nav>
       </div>
     </header>
 
-    <!-- 1) 抽獎舞台（略：保持你上一版的優化） -->
+    <!-- ===== 1) 舞台 ===== -->
     <main v-if="view === 'stage'" class="flex-1 flex flex-col">
-      <!-- Step 1: 選擇獎項 -->
+
+      <!-- Step 1: 選獎項 -->
       <div v-if="stageStep === 'select'" class="flex-1 flex flex-col items-center justify-center text-center">
         <div class="mb-10 md:mb-14">
           <h1 class="text-5xl md:text-7xl font-black title-insideout tracking-tight">新肌霓 2025</h1>
-          <h2 class="mt-4 text-2xl md:text-4xl font-black text-white/90 tracking-[0.45em] italic">
-            尾牙抽大的
-          </h2>
+          <h2 class="mt-4 text-2xl md:text-4xl font-black text-white/90 tracking-[0.45em] italic">尾牙抽大的</h2>
           <div class="mt-6 inline-flex items-center gap-2 badge">
             <i class="fa-solid fa-wand-magic-sparkles" style="color: var(--joy);"></i>
             <span>Stage Mode</span>
@@ -241,15 +221,13 @@
             v-for="p in prizes"
             :key="p.id"
             @click="preparePrize(p)"
-            :disabled="p.isFinished"
+            :disabled="p.isFinished === true"
             class="glass-card rainbow-stroke p-10 md:p-12 rounded-[34px] text-left transition-all hover:scale-[1.02] disabled:opacity-30"
           >
-            <p class="font-black mb-2 text-xs italic uppercase tracking-widest"
-               :class="p.isFinished ? 'text-white/40' : 'text-white/80'">
-              {{ p.isFinished ? '已結束' : 'AVAILABLE' }}
+            <p class="font-black mb-2 text-xs italic uppercase tracking-widest" :class="p.isFinished === true ? 'text-white/40' : 'text-white/80'">
+              {{ p.isFinished === true ? '已結束' : 'AVAILABLE' }}
             </p>
-            <h3 class="text-3xl md:text-4xl font-black tracking-tight"
-                :class="p.isFinished ? 'text-white/50' : 'text-white'">
+            <h3 class="text-3xl md:text-4xl font-black tracking-tight" :class="p.isFinished === true ? 'text-white/50' : 'text-white'">
               {{ p.name }}
             </h3>
             <div class="mt-6 flex items-center gap-2 text-white/60 text-xs font-bold">
@@ -258,14 +236,200 @@
             </div>
           </button>
         </div>
+
+        <div class="mt-10 text-xs text-white/65 font-bold">
+          <i class="fa-solid fa-circle-info mr-2" style="color: var(--sad2);"></i>
+          若獎項卡片無法點擊，請先到後台新增獎項或按「重置/清除」後重新建立
+        </div>
       </div>
 
-      <!-- Step 2/3 ...（你上一版抽獎畫面內容保持不變） -->
-      <!-- 為了回覆精簡，這裡不重複貼一大段舞台；你的原本舞台/抽獎改良版可直接保留 -->
-      <!-- 若你希望我把「完整含抽獎優化版」也一併合併到這份 header + 後台修正中，我可以再貼完整整份。 -->
+      <!-- Step 2: 預覽 -->
+      <div v-if="stageStep === 'preview'" class="flex-1 flex flex-col items-center justify-center text-center px-4">
+        <h2 class="text-6xl md:text-8xl font-black title-insideout mb-10 tracking-tight">{{ activePrize?.name }}</h2>
+
+        <div v-if="!contentRevealed">
+          <button @click="revealPrize" class="btn btn-joy px-10 md:px-16 py-5 text-xl md:text-2xl">
+            <i class="fa-solid fa-eye mr-3"></i>揭曉獎項清單內容物
+          </button>
+        </div>
+
+        <div v-else class="w-full flex flex-col items-center">
+          <div class="flex flex-wrap justify-center gap-4 md:gap-6 mb-10">
+            <div v-for="(item, idx) in activePrize.subItems" :key="idx" class="glass-card rainbow-stroke px-8 md:px-12 py-6 rounded-[28px]">
+              <span class="text-white/80 text-lg md:text-xl font-black block mb-1">{{ item.count }} 名額</span>
+              <span class="text-3xl md:text-4xl font-black text-white italic tracking-tight">{{ item.label }}</span>
+            </div>
+          </div>
+
+          <div class="flex flex-col md:flex-row gap-3 md:gap-4">
+            <button @click="stageStep = 'select'" class="btn btn-ghost px-10 py-4">
+              <i class="fa-solid fa-arrow-left mr-2"></i>返回獎項選擇
+            </button>
+            <button @click="stageStep = 'drawing'" class="btn btn-sad px-12 md:px-24 py-4 text-xl md:text-2xl">
+              <i class="fa-solid fa-play mr-3"></i>確認並開始抽獎
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: 抽獎 -->
+      <div v-if="stageStep === 'drawing'" class="flex-1 flex flex-col lg:flex-row gap-6 w-full relative">
+
+        <button
+          @click="backToMainStage"
+          class="absolute -top-12 left-0 text-white/70 hover:text-white transition text-sm font-black"
+          title="返回舞台首頁"
+        >
+          <i class="fas fa-chevron-left mr-2" style="color: var(--joy);"></i>返回舞台首頁
+        </button>
+
+        <!-- 左側：狀態 -->
+        <div class="lg:w-[42%] w-full flex flex-col p-6 md:p-8 glass-card rainbow-stroke rounded-[34px]">
+          <div class="mb-5">
+            <div class="flex items-start justify-between gap-4">
+              <div class="min-w-0">
+                <p class="text-white/70 font-black text-xs uppercase tracking-widest mb-2">目前抽獎</p>
+                <h2 class="text-4xl md:text-5xl font-black title-insideout tracking-tight truncate">{{ activePrize?.name }}</h2>
+                <div class="mt-3 flex items-center gap-2 text-white/70 text-xs font-black">
+                  <span class="badge !py-1 !px-3 !text-[10px]" style="letter-spacing:.18em;">
+                    <i class="fa-solid fa-chart-simple mr-2" style="color: var(--sad2);"></i>
+                    進度 {{ progressDone }} / {{ drawSequence.length }}
+                  </span>
+                </div>
+              </div>
+              <div class="flex flex-col gap-2 items-end">
+                <button @click="resetCurrentRound" class="btn btn-danger text-xs px-4 py-2">
+                  <i class="fas fa-redo-alt mr-2"></i>重置本輪
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-5">
+            <div class="rounded-3xl border px-5 py-4"
+              :style="isAllDone
+                ? 'border-color: rgba(55,214,107,.40); background: rgba(55,214,107,.10)'
+                : 'border-color: rgba(255,211,74,.55); background: rgba(255,211,74,.12); box-shadow: 0 0 0 1px rgba(255,211,74,.10)'">
+              <p class="text-[10px] font-black uppercase tracking-widest text-white/65 mb-1">
+                {{ isAllDone ? '本輪已完成' : '正在抽取項目' }}
+              </p>
+              <p class="text-2xl md:text-3xl font-black italic text-white">
+                {{ isAllDone ? '完成' : currentDrawItem?.label }}
+              </p>
+              <div class="mt-3 h-2 rounded-full bg-white/10 overflow-hidden">
+                <div class="h-full rounded-full"
+                  :style="`width:${progressPct}%; background: linear-gradient(90deg, rgba(255,211,74,1), rgba(46,117,255,1))`">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex-1 overflow-y-auto pr-2">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div v-for="(slot, idx) in drawSequence" :key="idx" :id="`slot-${idx}`"
+                class="flex items-center gap-3 p-4 rounded-3xl border transition-all"
+                :class="[
+                  slot.winner
+                    ? 'border-white/18 bg-white/6'
+                    : (idx === currentSequenceIndex && !isSpinning && !justWon && !isAllDone ? 'slot-active border' : 'border-white/8 opacity-45')
+                ]">
+                <div class="w-12 h-12 rounded-2xl bg-black/35 border border-white/10 overflow-hidden flex-shrink-0">
+                  <img v-if="slot.winner" :src="slot.winner.photo" class="w-full h-full object-cover">
+                  <span v-else class="text-lg font-black text-white/25 flex items-center justify-center h-full">?</span>
+                </div>
+                <div class="min-w-0 flex-1">
+                  <p class="text-[11px] font-black uppercase tracking-widest text-white/65 truncate">{{ slot.label }}</p>
+                  <p class="text-base md:text-lg font-black truncate" :class="slot.winner ? 'text-white' : 'text-white/70'">
+                    {{ slot.winner ? slot.winner.name : '等待抽取' }}
+                  </p>
+                </div>
+                <i v-if="slot.winner" class="fa-solid fa-check" :style="'color: var(--disgust);'"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右側：展示 -->
+        <div class="lg:w-[58%] w-full flex flex-col items-center justify-center glass-card rainbow-stroke rounded-[34px] relative overflow-hidden p-6 md:p-10">
+
+          <div class="absolute -top-40 -left-40 w-[420px] h-[420px] rounded-full blur-3xl" style="background: rgba(255,211,74,.16);"></div>
+          <div class="absolute -bottom-40 -right-40 w-[420px] h-[420px] rounded-full blur-3xl" style="background: rgba(46,117,255,.14);"></div>
+
+          <div v-if="isSpinning" class="flex flex-col items-center relative z-10 w-full">
+            <div class="w-56 h-56 md:w-72 md:h-72 rounded-[44px] overflow-hidden border-[10px] shadow-[0_0_85px_rgba(255,211,74,0.16)] mb-6"
+                 style="border-color: rgba(255,211,74,.55);">
+              <img :src="participants.find(p => p.id === currentSpinId)?.photo" class="w-full h-full object-cover">
+            </div>
+            <div class="w-full max-w-[720px] px-2">
+              <h2 class="text-4xl md:text-6xl font-black italic title-insideout tracking-tight text-center leading-tight break-words">
+                {{ participants.find(p => p.id === currentSpinId)?.name }}
+              </h2>
+            </div>
+            <div class="mt-5 inline-flex items-center gap-3 px-5 py-3 rounded-full border bg-white/8" style="border-color: rgba(46,117,255,.35);">
+              <span class="w-2 h-2 rounded-full animate-pulse" style="background: var(--sad2);"></span>
+              <p class="text-white/85 font-black tracking-[0.25em] uppercase text-xs">Searching...</p>
+            </div>
+          </div>
+
+          <div v-else-if="justWon" class="flex flex-col items-center winner-card relative z-10 w-full">
+            <p class="text-white/85 font-black mb-4 tracking-[0.35em] uppercase text-base md:text-xl italic">Congratulations!</p>
+            <div class="w-[240px] h-[240px] md:w-[320px] md:h-[320px] rounded-[36px] overflow-hidden border-[10px] mb-6"
+                 style="border-color: rgba(55,214,107,.55); box-shadow: 0 0 90px rgba(55,214,107,.14);">
+              <img :src="justWon.photo" class="w-full h-full object-cover">
+            </div>
+            <div class="w-full max-w-[820px] px-2">
+              <h2 class="text-4xl md:text-6xl font-black title-insideout tracking-tight text-center leading-tight break-words">
+                {{ justWon.name }}
+              </h2>
+            </div>
+
+            <div class="mt-6 flex flex-col md:flex-row gap-3">
+              <button v-if="!isAllDone" @click="nextSlot" class="btn btn-sad px-10 py-4 text-lg md:text-xl">
+                <i class="fa-solid fa-forward mr-3"></i>抽取下一位
+              </button>
+
+              <template v-else>
+                <button @click="openRoundWinnersModal" class="btn btn-joy px-10 py-4 text-lg md:text-xl">
+                  <i class="fa-solid fa-list-check mr-3"></i>查看本輪得獎名單
+                </button>
+                <button @click="backToMainStage" class="btn btn-ghost px-10 py-4 text-lg md:text-xl">
+                  <i class="fa-solid fa-house mr-3"></i>回到主舞台
+                </button>
+              </template>
+            </div>
+          </div>
+
+          <div v-else class="text-center relative z-10 w-full">
+            <div v-if="isAllDone" class="flex flex-col items-center">
+              <i class="fa-solid fa-circle-check text-[120px] md:text-[160px] mb-6" style="color: rgba(55,214,107,.55);"></i>
+              <h3 class="text-3xl md:text-4xl font-black mb-2 title-insideout">本輪抽獎完成</h3>
+              <p class="text-white/70 font-bold mb-8">已自動保存得獎紀錄，可查看名單或返回主舞台。</p>
+              <div class="flex flex-col md:flex-row gap-3 justify-center">
+                <button @click="openRoundWinnersModal" class="btn btn-joy px-10 py-4 text-lg md:text-xl">
+                  <i class="fa-solid fa-list-check mr-3"></i>查看本輪得獎名單
+                </button>
+                <button @click="backToMainStage" class="btn btn-ghost px-10 py-4 text-lg md:text-xl">
+                  <i class="fa-solid fa-house mr-3"></i>回到主舞台
+                </button>
+              </div>
+            </div>
+
+            <div v-else class="flex flex-col items-center">
+              <i class="fas fa-award text-white/10 text-[140px] md:text-[200px] mb-7"></i>
+              <button @click="startOneSpin" class="btn btn-joy px-12 py-6 text-2xl md:text-4xl">
+                <i class="fa-solid fa-play mr-3"></i>開始抽獎
+              </button>
+              <div class="mt-6 text-xs text-white/70 font-bold">
+                <i class="fa-solid fa-shield-halved mr-2" style="color: var(--sad2);"></i>
+                已得獎者會自動排除，避免重複
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </main>
 
-    <!-- 2) 後台管理（已修正輸入框可讀性：深色底+白字+白 placeholder） -->
+    <!-- ===== 2) 後台 ===== -->
     <main v-if="view === 'admin'" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
       <!-- 人員設定 -->
@@ -278,20 +442,15 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
-          <!-- ✅ 修正：深色底，白字，placeholder 也看得到 -->
-          <input
-            v-model="newUser.name"
+          <input v-model="newUser.name"
             class="bg-black/45 border border-white/15 p-4 rounded-2xl outline-none text-white placeholder:text-white/45 focus:ring-2 focus:ring-white/10"
-            placeholder="請輸入姓名"
-          >
+            placeholder="請輸入姓名">
           <div class="flex gap-2">
             <input type="file" ref="fileInput" class="hidden" @change="handleImage">
             <button @click="$refs.fileInput.click()" class="btn btn-ghost flex-1 text-sm px-4 py-3 rounded-2xl">
               <i class="fa-solid fa-image mr-2"></i>照片
             </button>
-            <button @click="addParticipant" :disabled="isProcessing" class="btn btn-sad px-6 py-3 rounded-2xl">
-              新增
-            </button>
+            <button @click="addParticipant" :disabled="isProcessing" class="btn btn-sad px-6 py-3 rounded-2xl">新增</button>
           </div>
         </div>
 
@@ -316,35 +475,21 @@
         </div>
 
         <div class="bg-white/6 p-6 md:p-8 rounded-[28px] border border-white/10 mb-7">
-          <h3 class="text-white/90 font-black mb-4 uppercase tracking-widest italic">
-            {{ editingId ? '編輯獎項' : '新增獎項' }}
-          </h3>
+          <h3 class="text-white/90 font-black mb-4 uppercase tracking-widest italic">{{ editingId ? '編輯獎項' : '新增獎項' }}</h3>
 
-          <!-- ✅ 修正：深色底、白字 -->
-          <input
-            v-model="tempMainPrize.name"
+          <input v-model="tempMainPrize.name"
             class="w-full bg-black/55 border border-white/15 p-5 rounded-3xl text-xl md:text-2xl font-black mb-5 outline-none text-white placeholder:text-white/45 focus:ring-2 focus:ring-white/10"
-            placeholder="大獎項名稱..."
-          >
+            placeholder="大獎項名稱...">
 
           <div class="space-y-3 mb-6">
             <div v-for="(item, idx) in tempMainPrize.subItems" :key="idx" class="flex gap-3">
-              <!-- ✅ 修正：深色底、白字 -->
-              <input
-                v-model="item.label"
+              <input v-model="item.label"
                 class="flex-1 bg-black/45 border border-white/15 p-4 rounded-2xl outline-none text-white placeholder:text-white/45 focus:ring-2 focus:ring-white/10"
-                placeholder="如：頭獎 $1000"
-              >
-              <!-- ✅ 修正：深色底、白字 -->
-              <input
-                v-model.number="item.count"
-                type="number"
+                placeholder="如：頭獎 $1000">
+              <input v-model.number="item.count" type="number"
                 class="w-24 bg-black/45 border border-white/15 p-4 rounded-2xl text-center font-black outline-none text-white placeholder:text-white/45 focus:ring-2 focus:ring-white/10"
-                placeholder="1"
-              >
-              <button @click="removeSubItem(idx)" class="btn btn-danger px-4 py-3 rounded-2xl">
-                <i class="fas fa-minus"></i>
-              </button>
+                placeholder="1">
+              <button @click="removeSubItem(idx)" class="btn btn-danger px-4 py-3 rounded-2xl"><i class="fas fa-minus"></i></button>
             </div>
 
             <button @click="addSubItem" class="btn btn-ghost w-full py-4 rounded-2xl">
@@ -353,10 +498,9 @@
           </div>
 
           <p class="text-xs font-black text-white/70 mb-2 uppercase italic">指定抽獎池（未勾選則全體）</p>
-
           <div class="flex flex-wrap gap-2 max-h-40 overflow-y-auto p-4 bg-black/18 rounded-3xl mb-6 border border-white/10">
             <label v-for="p in participants" :key="p.id"
-                   class="flex items-center gap-2 bg-white/6 border border-white/10 px-4 py-2 rounded-full cursor-pointer text-xs font-black text-white/85 hover:border-white/20 transition">
+              class="flex items-center gap-2 bg-white/6 border border-white/10 px-4 py-2 rounded-full cursor-pointer text-xs font-black text-white/85 hover:border-white/20 transition">
               <input type="checkbox" :value="p.id" v-model="tempMainPrize.eligibleIds" class="accent-yellow-300"> {{ p.name }}
             </label>
           </div>
@@ -365,10 +509,7 @@
             <button @click="saveMainPrize" class="btn btn-sad flex-1 py-4 rounded-[24px] text-lg">
               <i class="fa-solid fa-floppy-disk mr-2"></i>{{ editingId ? '確認修改' : '儲存獎項' }}
             </button>
-
-            <button v-if="editingId" @click="cancelEdit" class="btn btn-ghost px-8 py-4 rounded-[24px]">
-              取消
-            </button>
+            <button v-if="editingId" @click="cancelEdit" class="btn btn-ghost px-8 py-4 rounded-[24px]">取消</button>
           </div>
         </div>
 
@@ -376,21 +517,17 @@
           <div v-for="p in prizes" :key="p.id" class="glass-card p-5 rounded-[26px] flex items-center justify-between gap-4">
             <div class="min-w-0">
               <h3 class="text-xl md:text-2xl font-black text-white truncate">{{ p.name }}</h3>
-              <p class="text-[10px] font-black mt-1 uppercase tracking-widest"
-                 :class="p.isFinished ? 'text-white/55' : 'text-white/70'">
-                {{ p.isFinished ? '抽完囉' : '準備就緒' }}
+              <p class="text-[10px] font-black mt-1 uppercase tracking-widest" :class="p.isFinished === true ? 'text-white/55' : 'text-white/70'">
+                {{ p.isFinished === true ? '抽完囉' : '準備就緒' }}
               </p>
             </div>
-
             <div class="flex gap-2 flex-shrink-0">
               <button @click="editPrize(p)" class="btn btn-ghost px-4 py-2 rounded-xl text-xs">
                 <i class="fa-solid fa-pen-to-square mr-2"></i>編輯
               </button>
-
-              <button v-if="p.isFinished" @click="resetPrize(p.id)" class="btn btn-joy px-4 py-2 rounded-xl text-xs">
+              <button v-if="p.isFinished === true" @click="resetPrize(p.id)" class="btn btn-joy px-4 py-2 rounded-xl text-xs">
                 <i class="fa-solid fa-rotate-left mr-2"></i>重置
               </button>
-
               <button @click="removePrize(p.id)" class="btn btn-danger px-3 py-2 rounded-xl text-xs">
                 <i class="fas fa-trash-alt"></i>
               </button>
@@ -402,13 +539,53 @@
           <button @click="exportData" class="btn btn-ghost text-xs px-4 py-2 rounded-xl self-start md:self-auto">
             <i class="fa-solid fa-file-arrow-down mr-2"></i>導出資料備份（JSON）
           </button>
-
           <button @click="clearAll" class="btn btn-danger text-xs px-4 py-2 rounded-xl self-start md:self-auto">
             <i class="fa-solid fa-triangle-exclamation mr-2"></i>系統清除（慎用）
           </button>
         </div>
       </section>
     </main>
+
+    <!-- ===== Modal：本輪得獎名單 ===== -->
+    <div v-if="showRoundModal" class="fixed inset-0 z-[999] flex items-center justify-center p-4">
+      <div class="absolute inset-0 bg-black/70" @click="closeRoundWinnersModal"></div>
+
+      <div class="relative w-full max-w-3xl glass-card rainbow-stroke rounded-[28px] p-6 md:p-8">
+        <div class="flex items-start justify-between gap-4 mb-5">
+          <div class="min-w-0">
+            <p class="text-white/70 font-black text-xs uppercase tracking-widest mb-2">本輪得獎名單</p>
+            <h3 class="text-2xl md:text-3xl font-black title-insideout truncate">{{ activePrize?.name || '獎項' }}</h3>
+          </div>
+          <button class="btn btn-ghost px-4 py-2" @click="closeRoundWinnersModal">
+            <i class="fa-solid fa-xmark mr-2"></i>關閉
+          </button>
+        </div>
+
+        <div class="max-h-[60vh] overflow-y-auto pr-2">
+          <div v-if="roundWinners.length === 0" class="text-white/70 font-bold py-10 text-center">尚未有得獎者</div>
+
+          <div v-else class="space-y-3">
+            <div v-for="(w, idx) in roundWinners" :key="idx" class="flex items-center gap-4 p-4 rounded-3xl border border-white/12 bg-white/6">
+              <div class="w-12 h-12 rounded-2xl overflow-hidden border border-white/12 flex-shrink-0">
+                <img :src="w.photo" class="w-full h-full object-cover">
+              </div>
+              <div class="min-w-0 flex-1">
+                <p class="text-[11px] font-black uppercase tracking-widest text-white/70 truncate">{{ w.label }}</p>
+                <p class="text-lg font-black text-white truncate">{{ w.name }}</p>
+              </div>
+              <i class="fa-solid fa-trophy" style="color: var(--joy);"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 flex flex-col md:flex-row gap-3 justify-end">
+          <button class="btn btn-ghost px-6 py-3" @click="closeRoundWinnersModal">先留在此頁</button>
+          <button class="btn btn-joy px-6 py-3" @click="closeModalAndBackToMain">
+            <i class="fa-solid fa-house mr-2"></i>回到主舞台
+          </button>
+        </div>
+      </div>
+    </div>
 
   </div>
 
@@ -422,8 +599,17 @@
         const contentRevealed = ref(false);
         const isProcessing = ref(false);
 
+        // localStorage
         const participants = ref(JSON.parse(localStorage.getItem('sincere_v2025_users') || '[]'));
-        const prizes = ref(JSON.parse(localStorage.getItem('sincere_v2025_prizes') || '[]'));
+
+        // ✅ 修正：強制把 isFinished 轉成 boolean（只認 true 才是完成）
+        const prizes = ref(
+          (JSON.parse(localStorage.getItem('sincere_v2025_prizes') || '[]') || []).map(p => ({
+            ...p,
+            isFinished: p.isFinished === true
+          }))
+        );
+
         const winners = ref(JSON.parse(localStorage.getItem('sincere_v2025_winners') || '[]'));
 
         const newUser = ref({ name: '', photo: '' });
@@ -433,9 +619,12 @@
         const activePrize = ref(null);
         const drawSequence = ref([]);
         const currentSequenceIndex = ref(0);
+
         const isSpinning = ref(false);
         const currentSpinId = ref(null);
         const justWon = ref(null);
+
+        const showRoundModal = ref(false);
 
         const saveAllData = () => {
           localStorage.setItem('sincere_v2025_users', JSON.stringify(participants.value));
@@ -480,20 +669,33 @@
 
         const saveMainPrize = () => {
           if (!tempMainPrize.value.name) return;
+
+          // ✅ 確保 isFinished 是 boolean
+          const payload = {
+            ...tempMainPrize.value,
+            isFinished: tempMainPrize.value.isFinished === true
+          };
+
           if (editingId.value) {
             const idx = prizes.value.findIndex(p => p.id === editingId.value);
-            prizes.value[idx] = { ...tempMainPrize.value, id: editingId.value };
+            prizes.value[idx] = { ...payload, id: editingId.value };
             editingId.value = null;
           } else {
-            prizes.value = [...prizes.value, { id: Date.now(), ...tempMainPrize.value, isFinished: false }];
+            prizes.value = [...prizes.value, { id: Date.now(), ...payload, isFinished: false }];
           }
+
           tempMainPrize.value = { name: '', subItems: [{ label: '', count: 1 }], eligibleIds: [] };
           saveAllData();
         };
 
         const editPrize = (p) => {
           editingId.value = p.id;
-          tempMainPrize.value = { ...p, subItems: [...p.subItems.map(i => ({...i}))], eligibleIds: [...p.eligibleIds] };
+          tempMainPrize.value = {
+            ...p,
+            subItems: [...p.subItems.map(i => ({...i}))],
+            eligibleIds: [...(p.eligibleIds || [])],
+            isFinished: p.isFinished === true
+          };
         };
 
         const cancelEdit = () => {
@@ -503,6 +705,7 @@
 
         const removePrize = (id) => {
           prizes.value = prizes.value.filter(p => p.id !== id);
+          winners.value = winners.value.filter(w => w.prizeId !== id);
           saveAllData();
         };
 
@@ -510,33 +713,193 @@
           if (confirm('確定重置此獎項？得獎者會放回抽獎池。')) {
             winners.value = winners.value.filter(w => w.prizeId !== id);
             const p = prizes.value.find(p => p.id === id);
-            if (p) p.isFinished = false;
+            if (p) p.isFinished = false; // ✅ boolean
             saveAllData();
           }
         };
 
-        // 舞台/抽獎邏輯此處略（保持你目前版本即可）
-        // 如果你希望我把「完整含抽獎優化 + Modal + 回主舞台」的版本也一起合併回來，
-        // 你回我一句「請貼完整含舞台抽獎」我就把整份完整整合版本貼給你。
+        const currentEligiblePool = computed(() => {
+          const winIds = winners.value.map(w => w.userId);
+          let pool = participants.value.filter(p => !winIds.includes(p.id));
+          if (activePrize.value && activePrize.value.eligibleIds?.length > 0) {
+            pool = pool.filter(p => activePrize.value.eligibleIds.includes(p.id));
+          }
+          return pool;
+        });
+
+        const preparePrize = (prize) => {
+          activePrize.value = prize;
+          contentRevealed.value = false;
+          stageStep.value = 'preview';
+
+          const sequence = [];
+          [...prize.subItems].reverse().forEach(item => {
+            for (let i = 0; i < item.count; i++) sequence.push({ label: item.label, winner: null });
+          });
+          drawSequence.value = sequence;
+          currentSequenceIndex.value = 0;
+          justWon.value = null;
+        };
+
+        const revealPrize = () => {
+          contentRevealed.value = true;
+          confetti({ particleCount: 70, spread: 70, origin: { y: 0.3 } });
+        };
+
+        const currentDrawItem = computed(() => drawSequence.value[currentSequenceIndex.value] || null);
+        const isAllDone = computed(() => currentSequenceIndex.value >= drawSequence.value.length);
+
+        const progressDone = computed(() => {
+          const total = drawSequence.value.length || 1;
+          const done = Math.min(currentSequenceIndex.value + (justWon.value ? 1 : 0), total);
+          return done;
+        });
+
+        const progressPct = computed(() => {
+          const total = drawSequence.value.length || 1;
+          return Math.round((progressDone.value / total) * 100);
+        });
+
+        const roundWinners = computed(() => {
+          return drawSequence.value
+            .filter(s => !!s.winner)
+            .map(s => ({ label: s.label, name: s.winner.name, photo: s.winner.photo }));
+        });
+
+        const openRoundWinnersModal = () => { showRoundModal.value = true; };
+        const closeRoundWinnersModal = () => { showRoundModal.value = false; };
+
+        const backToMainStage = () => {
+          stageStep.value = 'select';
+          contentRevealed.value = false;
+          isSpinning.value = false;
+          currentSpinId.value = null;
+          justWon.value = null;
+        };
+
+        const closeModalAndBackToMain = () => {
+          showRoundModal.value = false;
+          backToMainStage();
+        };
+
+        const scrollToCurrent = () => {
+          try {
+            const el = document.getElementById(`slot-${currentSequenceIndex.value}`);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          } catch(e) {}
+        };
+
+        const startOneSpin = () => {
+          if (isAllDone.value) return;
+          if (currentEligiblePool.value.length === 0) return alert('沒人可以抽了');
+
+          isSpinning.value = true;
+          justWon.value = null;
+
+          const timer = setInterval(() => {
+            const idx = Math.floor(Math.random() * currentEligiblePool.value.length);
+            currentSpinId.value = currentEligiblePool.value[idx].id;
+          }, 80);
+
+          setTimeout(() => {
+            clearInterval(timer);
+            const winner = currentEligiblePool.value.find(p => p.id === currentSpinId.value);
+
+            nextTick(() => {
+              justWon.value = winner;
+              drawSequence.value[currentSequenceIndex.value].winner = winner;
+              winners.value = [...winners.value, { userId: winner.id, prizeId: activePrize.value.id }];
+              isSpinning.value = false;
+              saveAllData();
+              confetti({ particleCount: 220, spread: 110, origin: { y: 0.5 } });
+
+              if (currentSequenceIndex.value === drawSequence.value.length - 1) {
+                const ap = prizes.value.find(x => x.id === activePrize.value.id);
+                if (ap) ap.isFinished = true; // ✅ boolean
+                if (activePrize.value) activePrize.value.isFinished = true;
+                saveAllData();
+                setTimeout(() => { showRoundModal.value = true; }, 450);
+              }
+            });
+          }, 2600);
+        };
+
+        const nextSlot = () => {
+          justWon.value = null;
+          currentSequenceIndex.value++;
+          nextTick(() => scrollToCurrent());
+
+          if (currentSequenceIndex.value >= drawSequence.value.length) {
+            const ap = prizes.value.find(x => x.id === activePrize.value.id);
+            if (ap) ap.isFinished = true; // ✅ boolean
+            if (activePrize.value) activePrize.value.isFinished = true;
+            saveAllData();
+            showRoundModal.value = true;
+          }
+        };
+
+        const resetCurrentRound = () => {
+          if (!activePrize.value) return;
+          if (confirm('確定重置本輪？')) {
+            winners.value = winners.value.filter(w => w.prizeId !== activePrize.value.id);
+            drawSequence.value.forEach(s => s.winner = null);
+            currentSequenceIndex.value = 0;
+            justWon.value = null;
+            isSpinning.value = false;
+            currentSpinId.value = null;
+            showRoundModal.value = false;
+
+            const ap = prizes.value.find(x => x.id === activePrize.value.id);
+            if (ap) ap.isFinished = false; // ✅ boolean
+            activePrize.value.isFinished = false;
+
+            saveAllData();
+            nextTick(() => scrollToCurrent());
+          }
+        };
+
+        const exportData = () => {
+          const blob = new Blob([JSON.stringify({ participants: participants.value, prizes: prizes.value, winners: winners.value })], { type: 'application/json' });
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = `INGENI_Draw_Backup.json`;
+          a.click();
+        };
+
+        const clearAll = () => {
+          if(confirm('真的要清空所有資料嗎？')) {
+            localStorage.clear();
+            location.reload();
+          }
+        };
 
         return {
+          // state
           view, stageStep, contentRevealed, isProcessing,
           participants, prizes, winners,
           newUser, tempMainPrize, editingId,
           activePrize, drawSequence, currentSequenceIndex,
           isSpinning, currentSpinId, justWon,
+
+          // computed
+          currentEligiblePool, currentDrawItem, isAllDone,
+          progressDone, progressPct,
+          showRoundModal, roundWinners,
+
+          // methods
           changeView,
           handleImage, addParticipant, removeParticipant,
-          addSubItem, removeSubItem, saveMainPrize, editPrize, cancelEdit, removePrize, resetPrize,
-          saveAllData,
-          exportData: () => {
-            const blob = new Blob([JSON.stringify({ participants: participants.value, prizes: prizes.value, winners: winners.value })], { type: 'application/json' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `Sincere_Draw_2025_Backup.json`;
-            a.click();
-          },
-          clearAll: () => { if(confirm('真的要清空所有資料嗎？')) { localStorage.clear(); location.reload(); } }
+          addSubItem, removeSubItem,
+          saveMainPrize, editPrize, cancelEdit,
+          removePrize, resetPrize,
+
+          preparePrize, revealPrize,
+          startOneSpin, nextSlot, resetCurrentRound,
+
+          openRoundWinnersModal, closeRoundWinnersModal,
+          backToMainStage, closeModalAndBackToMain,
+
+          exportData, clearAll
         };
       }
     }).mount('#app');

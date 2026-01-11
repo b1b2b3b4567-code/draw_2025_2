@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 
-  <!-- Firebase compat -->
+  <!-- Firebase compat（單檔 index.html 最適合） -->
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
@@ -20,66 +20,50 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap');
 
-    body{
+    body {
       font-family: 'Noto Sans TC', sans-serif;
       background-color: #050507;
-      color:#fff;
-      overflow-x:hidden;
+      color: #fff;
+      overflow-x: hidden;
     }
-
-    .glass-card{
-      background: rgba(255,255,255,0.02);
-      backdrop-filter: blur(18px);
-      border: 1px solid rgba(255,255,255,0.10);
+    .glass-card {
+      background: rgba(255, 255, 255, 0.02);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
-    .gold-text{
+    .gold-text {
       background: linear-gradient(to bottom, #fff 20%, #fbbf24 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
-    .winner-card{ animation: winnerPop .6s cubic-bezier(0.175,0.885,0.32,1.275) forwards; }
-    @keyframes winnerPop{ from{ transform:scale(.5) translateY(30px); opacity:0; } to{ transform:scale(1) translateY(0); opacity:1; } }
-    .slot-active{ border-color:#fbbf24; background: rgba(245,158,11,.10); border-style:solid; }
-    ::-webkit-scrollbar{ width:5px; }
-    ::-webkit-scrollbar-thumb{ background:#333; border-radius:10px; }
+    .winner-card { animation: winnerPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+    @keyframes winnerPop { from { transform: scale(0.5) translateY(30px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
+    .slot-active { border-color: #fbbf24; background: rgba(245, 158, 11, 0.1); border-style: solid; }
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
 
-    /* ===== Secret Mode｜Inside Out Palette（舞台感 + 霓虹） ===== */
-    .neon-stage{
+    /* ===== Secret Mode: Inside Out Palette（亮色在深底） ===== */
+    .neon-bg {
       background:
-        radial-gradient(1200px 700px at 50% 10%, rgba(59,130,246,0.22), transparent 62%),
-        radial-gradient(900px 560px at 18% 28%, rgba(236,72,153,0.14), transparent 60%),
-        radial-gradient(1000px 760px at 84% 38%, rgba(124,58,237,0.14), transparent 62%),
-        radial-gradient(1400px 900px at 50% 110%, rgba(251,191,36,0.10), transparent 60%),
+        radial-gradient(900px 560px at 20% 15%, rgba(59, 130, 246, 0.20), transparent 60%),
+        radial-gradient(900px 560px at 80% 18%, rgba(236, 72, 153, 0.14), transparent 62%),
+        radial-gradient(1000px 720px at 50% 95%, rgba(124, 58, 237, 0.14), transparent 60%),
         linear-gradient(180deg, #070a18, #0a0f25);
       border: 1px solid rgba(255,255,255,0.08);
     }
-    .neon-border{ position:relative; }
-    .neon-border:before{
+    .neon-border { position: relative; }
+    .neon-border:before {
       content:"";
       position:absolute; inset:-1px;
-      border-radius:inherit;
+      border-radius: inherit;
       padding:1px;
       background: linear-gradient(120deg, rgba(59,130,246,.55), rgba(236,72,153,.35), rgba(124,58,237,.35), rgba(251,191,36,.25));
       -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-      -webkit-mask-composite:xor;
-      mask-composite:exclude;
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
       pointer-events:none;
     }
-
-    .stage-title{
-      font-size: clamp(28px, 4.2vw, 56px);
-      font-weight: 900;
-      letter-spacing: .06em;
-      text-shadow: 0 0 28px rgba(59,130,246,.18);
-    }
-    .stage-sub{
-      color: rgba(255,255,255,.75);
-      font-weight: 900;
-      letter-spacing: .22em;
-      text-transform: uppercase;
-      font-size: 12px;
-    }
-    .btn-neon{
+    .btn-neon {
       border-radius: 999px;
       padding: 12px 18px;
       font-weight: 900;
@@ -89,48 +73,60 @@
       cursor:pointer;
       transition: transform .15s ease, filter .15s ease, background .15s ease;
     }
-    .btn-neon:hover{ transform: translateY(-1px) scale(1.02); }
-    .btn-neon:active{ transform: scale(.99); }
-    .btn-neon:disabled{ opacity:.45; cursor:not-allowed; transform:none; }
+    .btn-neon:hover { transform: translateY(-1px) scale(1.02); }
+    .btn-neon:active { transform: scale(.99); }
+    .btn-neon:disabled { opacity:.45; cursor:not-allowed; transform:none; }
 
-    .btn-cyan{
+    .btn-cyan {
       color:#001018;
       background: linear-gradient(90deg, rgba(59,130,246,1), rgba(147,197,253,1));
       border-color: rgba(59,130,246,.55);
       box-shadow: 0 16px 50px rgba(59,130,246,.14);
     }
-    .btn-pink{
+    .btn-pink {
       color:#220014;
       background: linear-gradient(90deg, rgba(236,72,153,1), rgba(251,113,133,1));
       border-color: rgba(236,72,153,.55);
-      box-shadow: 0 16px 50px rgba(236,72,153,.12);
+      box-shadow: 0 16px 50px rgba(236,72,153,.10);
     }
-
-    .progress{
-      height: 14px;
+    .secret-sub {
+      color: rgba(255,255,255,.65);
+      font-weight: 900;
+      letter-spacing: .24em;
+      text-transform: uppercase;
+      font-size: 12px;
+    }
+    .secret-title {
+      font-size: clamp(24px, 3.6vw, 44px);
+      font-weight: 900;
+      letter-spacing: .08em;
+    }
+    .progress {
+      height: 12px;
       border-radius: 999px;
       background: rgba(255,255,255,.08);
       overflow:hidden;
       border: 1px solid rgba(255,255,255,.12);
-      box-shadow: inset 0 0 0 1px rgba(0,0,0,.2);
     }
     .progress > div{
       height:100%;
       width:0%;
       background: linear-gradient(90deg, rgba(59,130,246,1), rgba(236,72,153,1));
     }
-
-    .big-number{
-      font-size: clamp(34px, 5.2vw, 72px);
+    .ticker {
+      font-size: clamp(22px, 3.2vw, 44px);
       font-weight: 900;
-      letter-spacing: .02em;
-      line-height: 1.0;
+      letter-spacing: .04em;
+      text-shadow: 0 0 18px rgba(59,130,246,.12);
+      overflow:hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     /* 翻牌卡 */
     .card2{
       width: 240px; height: 320px;
-      border-radius: 26px;
+      border-radius: 22px;
       position:relative;
       transform-style: preserve-3d;
       transition: transform .6s cubic-bezier(.2,.9,.2,1);
@@ -138,12 +134,13 @@
     .card2.flip{ transform: rotateY(180deg); }
     .cardFace{
       position:absolute; inset:0;
-      border-radius: 26px;
+      border-radius: 22px;
       backface-visibility: hidden;
       display:flex; align-items:center; justify-content:center;
       flex-direction:column;
       gap:10px;
       padding: 18px;
+      overflow:hidden;
     }
     .cardBack{
       background: rgba(255,255,255,.06);
@@ -164,13 +161,87 @@
       z-index: 9999;
     }
     .modal-card{
-      max-width: 920px; width: 100%;
+      max-width: 820px; width: 100%;
       border-radius: 28px;
       background: rgba(10,15,37,.92);
       border: 1px solid rgba(255,255,255,.12);
       box-shadow: 0 30px 90px rgba(0,0,0,.55);
       backdrop-filter: blur(18px);
       padding: 18px;
+    }
+
+    /* Secret mode switch flash */
+    .switch-mask{
+      position: fixed; inset: 0;
+      z-index: 9998;
+      background: radial-gradient(800px 500px at 50% 40%, rgba(236,72,153,.20), transparent 60%),
+                  radial-gradient(900px 600px at 50% 60%, rgba(59,130,246,.24), transparent 62%),
+                  rgba(0,0,0,.55);
+      display:flex; align-items:center; justify-content:center;
+      backdrop-filter: blur(10px);
+      animation: flashIn .55s ease forwards;
+    }
+    @keyframes flashIn {
+      from { opacity: 0; transform: scale(1.02); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+    .switch-card{
+      width: min(880px, 92vw);
+      border-radius: 28px;
+      background: rgba(10,15,37,.86);
+      border: 1px solid rgba(255,255,255,.14);
+      box-shadow: 0 30px 110px rgba(0,0,0,.60);
+      padding: 18px;
+      animation: pop .55s cubic-bezier(.2,.9,.2,1) forwards;
+    }
+    @keyframes pop {
+      from { opacity: 0; transform: translateY(18px) scale(.98); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .big-prize{
+      font-size: clamp(34px, 5vw, 72px);
+      font-weight: 900;
+      letter-spacing: .06em;
+      line-height: 1.05;
+      text-shadow: 0 0 26px rgba(59,130,246,.18), 0 0 36px rgba(236,72,153,.12);
+    }
+    .candidate-card{
+      border-radius: 26px;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.12);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 24px 70px rgba(0,0,0,.35);
+      padding: 16px;
+      display:flex;
+      align-items:center;
+      gap:14px;
+      min-height: 108px;
+    }
+    .avatar{
+      width: 84px; height: 84px;
+      border-radius: 22px;
+      overflow:hidden;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.25);
+      flex-shrink:0;
+    }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .cand-name{
+      font-size: clamp(22px, 2.4vw, 34px);
+      font-weight: 900;
+      letter-spacing: .04em;
+      overflow:hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .stage-bottom-bar{
+      position: sticky;
+      bottom: 0;
+      margin-top: 16px;
+      padding-top: 14px;
+      padding-bottom: 6px;
+      background: linear-gradient(180deg, rgba(7,10,24,0), rgba(7,10,24,.85) 30%, rgba(7,10,24,.92));
+      backdrop-filter: blur(10px);
     }
   </style>
 </head>
@@ -183,18 +254,16 @@
           class="flex justify-between items-center mb-4 border-b border-white/10 pb-4">
     <div class="flex items-center gap-3">
       <h1 class="text-2xl font-black italic text-amber-500 tracking-widest uppercase">
-        新肌霓2025
+        新肌霓尾牙抽獎程式
       </h1>
 
-      <!-- 小 icon：進入「祕密主舞台（Secret Stage）」 -->
-      <button v-if="secretUnlocked || view==='secretStage' || view==='secretAdmin' || qForceSecret"
-              @click="enterSecretStage"
+      <!-- 抽獎程式小 icon：移到標題旁邊可點選 → 進入「秘密主舞台」 -->
+      <button v-if="secretUnlocked || qSecret"
+              @click="changeView('secretStage')"
               class="text-white/70 hover:text-white transition"
-              title="Secret Mode">
+              title="Secret Mode 舞台">
         <i class="fa-solid fa-wand-magic-sparkles text-xl"></i>
       </button>
-
-      <div class="text-white/35 font-black hidden md:block">尾牙抽獎程式</div>
     </div>
 
     <nav class="flex gap-4 items-center">
@@ -203,41 +272,52 @@
               class="px-4 py-1 font-bold">
         抽獎舞台
       </button>
-
       <button @click="changeView('admin')"
               :class="view === 'admin' ? 'text-amber-500 border-b-2 border-amber-500' : 'text-gray-500'"
               class="px-4 py-1 font-bold">
         後台管理
       </button>
 
-      <!-- 原本 SECRET 改成 管理員：只負責設定 -->
-      <button v-if="secretUnlocked || qForceSecret"
+      <!-- 原本 Secret 改名：管理員（進入 secretAdmin） -->
+      <button v-if="secretUnlocked || qSecret"
               @click="changeView('secretAdmin')"
-              :class="view === 'secretAdmin' ? 'text-blue-300 border-b-2 border-blue-300' : 'text-gray-500'"
+              :class="view === 'secretAdmin' ? 'text-blue-400 border-b-2 border-blue-400' : 'text-gray-500'"
               class="px-4 py-1 font-bold">
         管理員
       </button>
     </nav>
   </header>
 
+  <!-- 模式切換動畫遮罩 -->
+  <div v-if="modeSwitchFlash" class="switch-mask">
+    <div class="switch-card neon-border">
+      <div class="secret-sub text-center">secret mode</div>
+      <div class="text-center font-black mt-2" style="font-size: clamp(22px, 3.2vw, 40px);">
+        隱藏獎解鎖！
+      </div>
+      <div class="text-center text-white/70 font-bold mt-2">
+        進入抽卡模式 ✨
+      </div>
+    </div>
+  </div>
+
   <!-- =========================
        PLAYER VIEW（?player=1）
        ========================= -->
-  <main v-if="view === 'player'" class="flex-1 neon-stage rounded-[28px] p-5 neon-border">
+  <main v-if="view === 'player'" class="flex-1 neon-bg rounded-[28px] p-5 neon-border">
     <div class="max-w-[980px] mx-auto">
-
-      <div class="text-center mt-4">
-        <div class="stage-sub">mini-game</div>
-        <div class="stage-title mt-2">集氣挑戰</div>
-        <div class="mt-3 text-white/75 font-bold">
-          先輸入名字，然後狂點集氣。達標後會自動切到隱藏獎模式。
+      <div class="glass-card neon-border rounded-[26px] p-5">
+        <div class="secret-sub">mini-game</div>
+        <div class="secret-title mt-2">集氣挑戰</div>
+        <div class="mt-2 text-white/70 font-bold">
+          先輸入名字，然後狂點集氣。
         </div>
       </div>
 
-      <div class="mt-6 glass-card neon-border rounded-[26px] p-5">
+      <div class="glass-card neon-border rounded-[26px] p-5 mt-4">
         <div class="flex flex-wrap gap-3 items-end">
           <div class="flex-1 min-w-[240px]">
-            <div class="stage-sub">你的名字</div>
+            <div class="secret-sub">你的名字</div>
             <input v-model="playerNameInput"
                    class="mt-2 w-full px-4 py-3 rounded-2xl border border-white/15 bg-black/40 text-white font-black outline-none"
                    placeholder="例如：小明">
@@ -250,12 +330,12 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
           <div class="glass-card rounded-2xl p-4 border border-white/10">
-            <div class="stage-sub">你的點擊</div>
-            <div class="big-number mt-1">{{ playerMyCount.toLocaleString('zh-TW') }}</div>
+            <div class="secret-sub">你的點擊</div>
+            <div class="ticker mt-1">{{ playerMyCount.toLocaleString('zh-TW') }}</div>
           </div>
           <div class="glass-card rounded-2xl p-4 border border-white/10">
-            <div class="stage-sub">全場集氣</div>
-            <div class="big-number mt-1">{{ secretTotalPoints.toLocaleString('zh-TW') }}</div>
+            <div class="secret-sub">全場集氣</div>
+            <div class="ticker mt-1">{{ secretTotalPoints.toLocaleString('zh-TW') }}</div>
             <div class="progress mt-3"><div :style="{width: secretProgressPct + '%'}"></div></div>
             <div class="mt-2 text-white/65 font-black">目標：{{ secretTargetPoints.toLocaleString('zh-TW') }}</div>
           </div>
@@ -270,6 +350,17 @@
           <div class="text-white/70 font-black">{{ playerStatusText }}</div>
         </div>
 
+        <div class="glass-card rounded-2xl p-4 border border-white/10 mt-4">
+          <div class="secret-sub">top 排行</div>
+          <div class="mt-3 grid gap-2">
+            <div v-for="(t, idx) in secretTop10" :key="idx"
+                 class="glass-card rounded-xl px-3 py-2 border border-white/10 flex justify-between items-center">
+              <div class="font-black truncate">#{{ idx+1 }} {{ t.name || '匿名' }}</div>
+              <div class="font-black text-blue-200">{{ (t.count||0).toLocaleString('zh-TW') }}</div>
+            </div>
+          </div>
+        </div>
+
         <div v-if="fbError" class="mt-4 text-red-300 font-black">
           Firebase 錯誤：{{ fbError }}
         </div>
@@ -278,303 +369,328 @@
   </main>
 
   <!-- =========================
-       SECRET STAGE（祕密主舞台）
+       SECRET STAGE VIEW（秘密主舞台）
        ========================= -->
-  <main v-if="view === 'secretStage'" class="flex-1 neon-stage rounded-[28px] p-6 neon-border">
-    <div class="max-w-[1400px] mx-auto">
+  <main v-if="view === 'secretStage'" class="flex-1 neon-bg rounded-[28px] p-5 neon-border">
+    <div class="max-w-[1100px] mx-auto">
 
-      <!-- 題頭 -->
-      <div class="text-center mt-2">
-        <div class="stage-sub">Secret Mode</div>
-        <div class="stage-title mt-2">霓的祕密花園</div>
-        <div class="mt-3 text-white/75 font-bold">
-          歡迎來到隱藏獎項，需要大家集氣才能出現~
+      <!-- 模式：集氣舞台 -->
+      <section v-if="secretMode === 'minigame'" class="glass-card neon-border rounded-[26px] p-6">
+        <div class="text-center">
+          <div class="secret-sub">secret mode</div>
+          <div class="secret-title mt-2">霓的祕密花園</div>
+          <div class="mt-2 text-white/75 font-bold">
+            歡迎來到隱藏獎項，需要大家集氣才能出現~
+          </div>
         </div>
 
-        <div class="mt-4 flex justify-center gap-2 flex-wrap">
-          <button class="btn-neon" @click="changeView('stage')">
-            <i class="fa-solid fa-arrow-left mr-2"></i> 回主舞台
-          </button>
-          <button class="btn-neon" @click="enterSecretAdmin" v-if="secretUnlocked || qForceSecret">
-            <i class="fa-solid fa-gear mr-2"></i> 管理員設定
-          </button>
+        <!-- QR 置中最顯眼（固定在標題下正中間） -->
+        <div class="mt-6 flex flex-col items-center">
+          <div class="glass-card neon-border rounded-[26px] p-5 w-full max-w-[520px] text-center">
+            <div class="secret-sub">scan to join</div>
+            <div class="mt-2 text-white/75 font-bold">掃碼加入集氣</div>
+
+            <div class="mt-4 flex justify-center">
+              <canvas ref="qrCanvasStage" class="bg-white rounded-2xl p-3"></canvas>
+            </div>
+
+            <div class="mt-3 text-white/60 font-black text-sm">
+              ※ 網址主持人後台看得到，舞台只顯示 QR
+            </div>
+          </div>
         </div>
-      </div>
 
-      <!-- 集氣展示（置中、最顯眼） -->
-      <section v-if="secretMode === 'minigame'" class="mt-7">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+        <div class="mt-6 grid grid-cols-1 gap-4">
+          <div class="glass-card neon-border rounded-[26px] p-5">
+            <div class="flex justify-between items-end gap-3 flex-wrap">
+              <div>
+                <div class="secret-sub">全場集氣</div>
+                <div class="ticker mt-1">{{ secretTotalPoints.toLocaleString('zh-TW') }}</div>
+              </div>
+              <div class="text-right">
+                <div class="secret-sub">目標</div>
+                <div class="text-3xl font-black text-white/85">{{ secretTargetPoints.toLocaleString('zh-TW') }}</div>
+              </div>
+            </div>
+            <div class="progress mt-4"><div :style="{width: secretProgressPct + '%'}"></div></div>
+            <div class="mt-3 text-white/75 font-black">進度：{{ secretProgressPct }}%</div>
 
-          <!-- 大 QR -->
-          <div class="lg:col-span-1 flex flex-col items-center justify-center">
-            <div class="glass-card neon-border rounded-[28px] p-6 w-full max-w-[420px] text-center">
-              <div class="stage-sub">scan to join</div>
-              <div class="text-white/80 font-black mt-2">掃碼加入集氣</div>
-              <div class="mt-4 flex justify-center">
-                <canvas ref="gardenQrCanvas" class="bg-white rounded-2xl p-3 shadow-2xl"></canvas>
-              </div>
-              <div class="mt-3 text-white/60 font-black text-xs">
-                （不顯示網址，直接掃碼即可）
-              </div>
+            <div v-if="fbError" class="mt-3 text-red-300 font-black">
+              Firebase 錯誤：{{ fbError }}
             </div>
           </div>
 
-          <!-- 進度條（最大） -->
-          <div class="lg:col-span-2 flex flex-col gap-6">
-            <div class="glass-card neon-border rounded-[28px] p-6">
-              <div class="flex flex-wrap justify-between items-end gap-3">
-                <div>
-                  <div class="stage-sub">全場集氣</div>
-                  <div class="big-number mt-2">{{ secretTotalPoints.toLocaleString('zh-TW') }}</div>
-                </div>
-                <div class="text-right">
-                  <div class="stage-sub">目標</div>
-                  <div class="text-2xl font-black text-white/85 mt-2">
-                    {{ secretTargetPoints.toLocaleString('zh-TW') }}
-                  </div>
-                </div>
-              </div>
-
-              <div class="progress mt-5">
-                <div :style="{width: secretProgressPct + '%'}"></div>
-              </div>
-
-              <div class="mt-4 text-white/70 font-black">
-                進度：<span class="text-blue-200">{{ secretProgressPct }}%</span>
-                <span class="text-white/40 mx-2">｜</span>
-                達標後自動切換至 <span class="text-pink-200">隱藏獎模式</span>
-              </div>
-
-              <div v-if="fbError" class="mt-4 text-red-300 font-black">
-                Firebase 錯誤：{{ fbError }}
-              </div>
-            </div>
-
-            <!-- 排名 -->
-            <div class="glass-card neon-border rounded-[28px] p-6">
-              <div class="stage-sub">top ranking</div>
-              <div class="text-xl font-black mt-2">集氣排行榜</div>
-              <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div v-for="(t, idx) in secretTop10" :key="idx"
-                     class="glass-card rounded-2xl px-4 py-3 border border-white/10 flex justify-between items-center">
-                  <div class="font-black truncate text-white/85">#{{ idx+1 }} {{ t.name || '匿名' }}</div>
-                  <div class="font-black text-blue-200">{{ (t.count||0).toLocaleString('zh-TW') }}</div>
-                </div>
-                <div v-if="!secretTop10.length" class="text-white/50 font-black">
-                  目前還沒有排行，快掃碼集氣吧！
-                </div>
+          <div class="glass-card neon-border rounded-[26px] p-5">
+            <div class="secret-sub">top ranking</div>
+            <div class="text-2xl font-black mt-2">集氣排行榜</div>
+            <div class="mt-4 grid gap-2">
+              <div v-for="(t, idx) in secretTop10" :key="idx"
+                   class="glass-card rounded-xl px-3 py-2 border border-white/10 flex justify-between items-center">
+                <div class="font-black truncate">#{{ idx+1 }} {{ t.name || '匿名' }}</div>
+                <div class="font-black text-blue-200">{{ (t.count||0).toLocaleString('zh-TW') }}</div>
               </div>
             </div>
           </div>
+        </div>
 
+        <!-- 回主舞台按鈕：固定在頁面最下面 -->
+        <div class="stage-bottom-bar">
+          <div class="flex justify-center">
+            <button class="btn-neon" @click="changeView('stage')">
+              <i class="fa-solid fa-arrow-left mr-2"></i> 回主舞台
+            </button>
+          </div>
         </div>
       </section>
 
-      <!-- 隱藏獎舞台（達標後自動切換在這裡） -->
-      <section v-if="secretMode === 'hiddenPrize'" class="mt-7">
-        <div class="glass-card neon-border rounded-[28px] p-6">
-          <div class="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <div class="stage-sub">Hidden Prize</div>
-              <div class="text-2xl font-black mt-2">
-                Round {{ hiddenRound }} / 3
-              </div>
-              <div class="mt-2 text-white/80 font-black">
-                獎項名稱：<span class="text-yellow-200">{{ hiddenCurrentPrizeName || '-' }}</span>
-              </div>
-              <div class="mt-2 text-white/60 font-black">
-                （提示：翻開「機會 / 命運」會揭曉「獎項內容」，不會顯示得獎人）
-              </div>
-            </div>
+      <!-- 模式：hiddenPrize（抽卡舞台） -->
+      <section v-else class="glass-card neon-border rounded-[26px] p-6">
+        <!-- 獎項名稱要很大、凸顯（不顯示 Round 1/3） -->
+        <div class="text-center">
+          <div class="secret-sub">hidden prize</div>
+          <div class="big-prize mt-2 text-yellow-200">
+            {{ hiddenCurrentPrizeName || '隱藏獎項' }}
+          </div>
+        </div>
 
-            <div class="flex gap-2 flex-wrap">
-              <button class="btn-neon btn-pink"
-                      :disabled="hiddenSpinLock"
-                      @click="hiddenPickTwoWithSpin">
-                開始抽取 2 人（轉盤）
-              </button>
-              <button class="btn-neon btn-cyan"
-                      :disabled="!hiddenHasTwoPicked"
-                      @click="hiddenShowCards = true">
-                進入翻牌
-              </button>
-              <button class="btn-neon"
-                      :disabled="!hiddenCanNextRound"
-                      @click="hiddenNextRound">
-                下一輪
-              </button>
+        <!-- 候選人名單（含人像） -->
+        <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="candidate-card neon-border">
+            <div class="avatar">
+              <img v-if="hiddenCandidateAObj?.photo" :src="hiddenCandidateAObj.photo" alt="">
+            </div>
+            <div class="min-w-0">
+              <div class="secret-sub">候選人</div>
+              <div class="cand-name mt-1">{{ hiddenCandidateAObj?.name || '-' }}</div>
             </div>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5">
-            <div class="glass-card rounded-2xl p-4 border border-white/10">
-              <div class="stage-sub">候選 A</div>
-              <div class="text-3xl font-black mt-2 text-white/90 truncate">{{ hiddenCandidateA || '-' }}</div>
+          <div class="candidate-card neon-border">
+            <div class="avatar">
+              <img v-if="hiddenCandidateBObj?.photo" :src="hiddenCandidateBObj.photo" alt="">
             </div>
-            <div class="glass-card rounded-2xl p-4 border border-white/10">
-              <div class="stage-sub">候選 B</div>
-              <div class="text-3xl font-black mt-2 text-white/90 truncate">{{ hiddenCandidateB || '-' }}</div>
+            <div class="min-w-0">
+              <div class="secret-sub">候選人</div>
+              <div class="cand-name mt-1">{{ hiddenCandidateBObj?.name || '-' }}</div>
             </div>
           </div>
+        </div>
 
-          <div v-if="hiddenShowCards" class="mt-6">
-            <div class="text-center text-white/75 font-black mb-4">
-              點擊翻開「機會」或「命運」卡牌（不需分 A/B，主持人現場決定即可）
+        <!-- 抽取/翻牌區塊：抽取後自動切換到翻牌區塊 -->
+        <div class="mt-6">
+          <!-- 翻牌區 -->
+          <div v-if="hiddenStageStep === 'cards'" class="glass-card neon-border rounded-[26px] p-5">
+            <div class="text-center text-white/75 font-bold mb-4">
+              由現場決定要先翻哪張卡牌
             </div>
 
             <div class="flex flex-wrap justify-center gap-5">
+              <!-- 機會 -->
               <div class="card2 neon-border cursor-pointer"
-                   :class="{flip: hiddenCardChosen==='chance'}"
-                   @click="hiddenRevealCard('chance')">
+                   :class="{flip: hiddenFlipChance}"
+                   @click="hiddenToggleFlip('chance')">
                 <div class="cardFace cardBack">
-                  <div class="stage-sub">卡牌</div>
+                  <div class="secret-sub">卡牌</div>
                   <div class="text-4xl font-black">機會</div>
                   <div class="text-white/60 font-black">點擊翻開</div>
                 </div>
                 <div class="cardFace cardFront">
-                  <div class="stage-sub">內容揭曉</div>
-                  <div class="text-xl font-black text-center">
-                    {{ hiddenRevealedContentTitle || '—' }}
+                  <div class="secret-sub">獎項內容</div>
+
+                  <div v-if="hiddenCardChanceImg" class="w-full">
+                    <img :src="hiddenCardChanceImg" class="w-full h-[150px] object-cover rounded-2xl border border-white/15">
                   </div>
-                  <img v-if="hiddenRevealedContentImg"
-                       :src="hiddenRevealedContentImg"
-                       class="mt-2 w-full h-[160px] object-cover rounded-xl border border-white/10">
-                  <div v-else class="text-white/55 font-black text-sm text-center">
-                    （尚未設定圖片）
+                  <div class="font-black text-center text-xl text-white/90 mt-2">
+                    {{ hiddenCardChanceText || '（未設定內容）' }}
                   </div>
                 </div>
               </div>
 
+              <!-- 命運 -->
               <div class="card2 neon-border cursor-pointer"
-                   :class="{flip: hiddenCardChosen==='destiny'}"
-                   @click="hiddenRevealCard('destiny')">
+                   :class="{flip: hiddenFlipDestiny}"
+                   @click="hiddenToggleFlip('destiny')">
                 <div class="cardFace cardBack">
-                  <div class="stage-sub">卡牌</div>
+                  <div class="secret-sub">卡牌</div>
                   <div class="text-4xl font-black">命運</div>
                   <div class="text-white/60 font-black">點擊翻開</div>
                 </div>
                 <div class="cardFace cardFront">
-                  <div class="stage-sub">內容揭曉</div>
-                  <div class="text-xl font-black text-center">
-                    {{ hiddenRevealedContentTitle || '—' }}
+                  <div class="secret-sub">獎項內容</div>
+
+                  <div v-if="hiddenCardDestinyImg" class="w-full">
+                    <img :src="hiddenCardDestinyImg" class="w-full h-[150px] object-cover rounded-2xl border border-white/15">
                   </div>
-                  <img v-if="hiddenRevealedContentImg"
-                       :src="hiddenRevealedContentImg"
-                       class="mt-2 w-full h-[160px] object-cover rounded-xl border border-white/10">
-                  <div v-else class="text-white/55 font-black text-sm text-center">
-                    （尚未設定圖片）
+                  <div class="font-black text-center text-xl text-white/90 mt-2">
+                    {{ hiddenCardDestinyText || '（未設定內容）' }}
                   </div>
                 </div>
               </div>
             </div>
 
-            <div class="text-center text-white/60 font-black mt-4">
+            <div class="text-center text-white/70 font-black mt-4">
               {{ hiddenRevealNote }}
             </div>
           </div>
 
-          <div v-if="fbError" class="mt-5 text-red-300 font-black">
-            Firebase 錯誤：{{ fbError }}
+          <!-- 抽取區（沒有提示文字、專心抽人） -->
+          <div v-else class="glass-card neon-border rounded-[26px] p-5 text-center">
+            <div class="text-white/75 font-bold">
+              點擊開始抽取兩位候選人
+            </div>
+          </div>
+
+          <!-- 底部按鈕列：抽取、翻牌、下一輪 都在畫面下面 -->
+          <div class="stage-bottom-bar">
+            <div class="flex justify-center gap-3 flex-wrap">
+              <button class="btn-neon btn-pink"
+                      :disabled="hiddenSpinLock"
+                      @click="hiddenPickTwoWithSpin">
+                <i class="fa-solid fa-bolt mr-2"></i> 抽取兩位
+              </button>
+
+              <button class="btn-neon btn-cyan"
+                      :disabled="!hiddenHasTwoPicked"
+                      @click="hiddenGoCards">
+                <i class="fa-solid fa-cards mr-2"></i> 翻牌
+              </button>
+
+              <button class="btn-neon"
+                      :disabled="!hiddenCanNextRound"
+                      @click="hiddenNextRound">
+                <i class="fa-solid fa-arrow-right mr-2"></i> 下一輪
+              </button>
+
+              <button class="btn-neon"
+                      @click="changeView('stage')">
+                <i class="fa-solid fa-arrow-left mr-2"></i> 回主舞台
+              </button>
+            </div>
           </div>
         </div>
+
+        <!-- 三輪結束 Modal -->
+        <div v-if="hiddenSummaryOpen" class="modal-mask">
+          <div class="modal-card">
+            <div class="flex justify-between items-center gap-3">
+              <div>
+                <div class="secret-sub">hidden prize done</div>
+                <div class="text-2xl font-black mt-1">本輪隱藏獎得獎名單</div>
+              </div>
+              <button class="btn-neon" @click="hiddenSummaryOpen=false">
+                <i class="fa-solid fa-xmark mr-2"></i> 關閉
+              </button>
+            </div>
+
+            <div class="mt-4 grid gap-3">
+              <div v-for="row in hiddenSummaryRows" :key="row.round"
+                   class="glass-card neon-border rounded-2xl p-4">
+                <div class="text-xl font-black mt-1 text-yellow-200">{{ row.prize }}</div>
+                <div class="mt-2 font-black text-white/80">
+                  {{ row.winners.join('、') }}
+                </div>
+              </div>
+            </div>
+
+            <div class="flex justify-end gap-2 mt-5">
+              <button class="btn-neon btn-cyan" @click="completeHiddenAndBackToStage">
+                回到主舞台
+              </button>
+            </div>
+          </div>
+        </div>
+
       </section>
-
-      <!-- 三輪結束 Modal -->
-      <div v-if="hiddenSummaryOpen" class="modal-mask">
-        <div class="modal-card">
-          <div class="flex justify-between items-center gap-3">
-            <div>
-              <div class="stage-sub">hidden prize done</div>
-              <div class="text-2xl font-black mt-1">隱藏獎｜本輪總結</div>
-            </div>
-            <button class="btn-neon" @click="hiddenSummaryOpen=false">
-              <i class="fa-solid fa-xmark mr-2"></i> 關閉
-            </button>
-          </div>
-
-          <div class="mt-4 grid gap-3">
-            <div v-for="row in hiddenSummaryRows" :key="row.round"
-                 class="glass-card neon-border rounded-2xl p-4">
-              <div class="stage-sub">round {{ row.round }}</div>
-              <div class="text-xl font-black mt-1 text-yellow-200">{{ row.prize }}</div>
-
-              <div class="mt-2 text-white/80 font-black">
-                得獎者：{{ row.winners.join('、') }}
-              </div>
-
-              <div class="mt-3 text-white/75 font-black">
-                翻開卡牌：<span class="text-blue-200">{{ row.revealedCard }}</span>
-                <span class="text-white/40 mx-2">｜</span>
-                內容：<span class="text-pink-200">{{ row.contentTitle || '-' }}</span>
-              </div>
-
-              <img v-if="row.contentImg"
-                   :src="row.contentImg"
-                   class="mt-3 w-full max-h-[220px] object-cover rounded-2xl border border-white/10">
-            </div>
-          </div>
-
-          <div class="flex justify-end gap-2 mt-5">
-            <button class="btn-neon btn-cyan" @click="completeHiddenAndBackToStage">
-              回到主舞台
-            </button>
-          </div>
-        </div>
-      </div>
 
     </div>
   </main>
 
   <!-- =========================
-       SECRET ADMIN（管理員設定）
+       SECRET ADMIN VIEW（管理員）
        ========================= -->
-  <main v-if="view === 'secretAdmin'" class="flex-1 neon-stage rounded-[28px] p-6 neon-border">
+  <main v-if="view === 'secretAdmin'" class="flex-1 neon-bg rounded-[28px] p-5 neon-border">
     <div class="max-w-[1400px] mx-auto">
 
       <div class="glass-card neon-border rounded-[26px] p-5 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <div class="stage-sub">admin console</div>
-          <div class="text-2xl font-black mt-2">管理員｜隱藏獎設定</div>
+          <div class="secret-sub">admin console</div>
+          <div class="secret-title mt-2">管理員設定｜隱藏獎 & 集氣</div>
           <div class="mt-2 text-white/70 font-bold">
-            這頁只負責「設定」，翻牌與抽人會在「祕密主舞台」進行。
+            注意：隱藏獎 eligible 名單維持讀取 localStorage（同一台主持人電腦/同一瀏覽器）。
           </div>
         </div>
         <div class="flex gap-2 flex-wrap">
-          <button class="btn-neon" @click="enterSecretStage">
-            <i class="fa-solid fa-star mr-2"></i> 回祕密主舞台
+          <button class="btn-neon" @click="changeView('secretStage')">
+            <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> 回秘密舞台
           </button>
-          <button class="btn-neon" @click="changeView('stage')">
-            <i class="fa-solid fa-arrow-left mr-2"></i> 回主舞台
+          <button class="btn-neon" @click="secretHostResetMinigame">
+            重置集氣（含排行歸零）
           </button>
         </div>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mt-5">
-        <!-- 集氣設定 -->
-        <section class="glass-card neon-border rounded-[26px] p-5 lg:col-span-1">
-          <div class="stage-sub">minigame settings</div>
-          <div class="text-xl font-black mt-2">集氣目標</div>
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4">
+        <!-- 左：集氣設定 -->
+        <section class="glass-card neon-border rounded-[26px] p-5 lg:col-span-2">
+          <div class="flex flex-wrap justify-between items-start gap-3">
+            <div>
+              <div class="secret-sub">session</div>
+              <div class="font-black mt-1 text-white/80">
+                {{ sessionId }}
+              </div>
+              <div class="mt-2 text-white/65 font-black">
+                目前模式：<span class="text-blue-200">{{ secretMode }}</span>
+              </div>
+            </div>
 
-          <div class="mt-3">
-            <div class="stage-sub">target points</div>
-            <input v-model.number="secretTargetInput" type="number"
-                   class="mt-2 w-full px-4 py-3 rounded-2xl border border-white/15 bg-black/40 text-white font-black outline-none">
+            <div class="flex flex-wrap gap-2 items-end">
+              <div class="min-w-[220px]">
+                <div class="secret-sub">target points</div>
+                <input v-model.number="secretTargetInput"
+                       type="number"
+                       class="mt-2 w-full px-4 py-3 rounded-2xl border border-white/15 bg-black/40 text-white font-black outline-none">
+              </div>
+              <button class="btn-neon btn-cyan h-[48px]" @click="secretHostSaveTarget">
+                保存目標
+              </button>
+              <button class="btn-neon btn-pink h-[48px]" @click="secretHostForceHiddenPrize">
+                手動切到 hiddenPrize
+              </button>
+            </div>
           </div>
 
-          <div class="flex gap-2 flex-wrap mt-4">
-            <button class="btn-neon btn-cyan" @click="secretHostSaveTarget">保存</button>
-            <button class="btn-neon" @click="secretHostResetMinigame">重置集氣</button>
-            <button class="btn-neon btn-pink" @click="secretHostForceHiddenPrize">手動切換隱藏獎</button>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+            <div class="glass-card rounded-2xl p-4 border border-white/10">
+              <div class="secret-sub">全場集氣</div>
+              <div class="ticker mt-1">{{ secretTotalPoints.toLocaleString('zh-TW') }}</div>
+              <div class="progress mt-3"><div :style="{width: secretProgressPct + '%'}"></div></div>
+              <div class="mt-2 text-white/65 font-black">目標：{{ secretTargetPoints.toLocaleString('zh-TW') }}</div>
+            </div>
+
+            <div class="glass-card rounded-2xl p-4 border border-white/10">
+              <div class="secret-sub">join url（後台顯示）</div>
+              <div class="mt-2 font-black text-blue-200 break-all">
+                {{ joinUrl }}
+              </div>
+              <div class="flex gap-3 items-center mt-3 flex-wrap">
+                <canvas ref="qrCanvasAdmin" class="bg-white rounded-xl p-2"></canvas>
+                <div class="text-white/65 font-black">
+                  這是管理員用 QR<br>
+                  （舞台也會顯示一份）
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div class="mt-5 text-white/70 font-black">
-            目前模式：<span class="text-blue-200">{{ secretMode }}</span>
-          </div>
-
-          <div class="mt-3">
-            <div class="stage-sub">current total</div>
-            <div class="big-number mt-1">{{ secretTotalPoints.toLocaleString('zh-TW') }}</div>
-            <div class="progress mt-3"><div :style="{width: secretProgressPct + '%'}"></div></div>
+          <div class="glass-card rounded-2xl p-4 border border-white/10 mt-3">
+            <div class="secret-sub">top 10</div>
+            <div class="mt-3 grid gap-2">
+              <div v-for="(t, idx) in secretTop10" :key="idx"
+                   class="glass-card rounded-xl px-3 py-2 border border-white/10 flex justify-between items-center">
+                <div class="font-black truncate">#{{ idx+1 }} {{ t.name || '匿名' }}</div>
+                <div class="font-black text-blue-200">{{ (t.count||0).toLocaleString('zh-TW') }}</div>
+              </div>
+            </div>
           </div>
 
           <div v-if="fbError" class="mt-4 text-red-300 font-black">
@@ -582,91 +698,72 @@
           </div>
         </section>
 
-        <!-- 隱藏獎設定 -->
-        <section class="glass-card neon-border rounded-[26px] p-5 lg:col-span-2">
-          <div class="stage-sub">hidden prize config</div>
-          <div class="text-xl font-black mt-2">隱藏獎（3 輪設定）</div>
+        <!-- 右：隱藏獎設定（3個獎：名稱 + 機會/命運內容 + 圖片 + 名單） -->
+        <section class="glass-card neon-border rounded-[26px] p-5">
+          <div class="secret-sub">hidden prize config</div>
+          <div class="text-xl font-black mt-2">隱藏獎（順序 3 個）</div>
 
           <div class="mt-4 grid gap-4">
-            <div v-for="r in [1,2,3]" :key="r"
-                 class="glass-card rounded-[22px] border border-white/10 p-4">
-              <div class="flex flex-wrap items-end justify-between gap-3">
-                <div>
-                  <div class="stage-sub">round {{ r }}</div>
-                  <div class="text-lg font-black text-yellow-200 mt-1">獎項名稱</div>
-                </div>
-                <div class="text-white/60 font-black text-xs">
-                  （機會 / 命運 翻開的是「內容」）
-                </div>
-              </div>
+            <div v-for="(hp, idx) in hiddenPrizeConfig" :key="idx" class="glass-card neon-border rounded-2xl p-4">
+              <div class="secret-sub">獎項 {{ idx+1 }}</div>
 
-              <input v-model="hiddenConfigLocal.prizes[r-1].name"
-                     class="mt-3 w-full px-4 py-3 rounded-2xl border border-white/15 bg-black/40 text-white font-black outline-none"
-                     placeholder="例如：霓的神秘一番賞">
+              <input v-model="hp.name"
+                     class="mt-2 px-4 py-3 w-full rounded-2xl border border-white/15 bg-black/40 text-white font-black outline-none"
+                     placeholder="獎項名稱（顯示很大）">
 
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                <!-- chance -->
-                <div class="glass-card rounded-2xl border border-white/10 p-4">
-                  <div class="stage-sub">card</div>
-                  <div class="text-xl font-black mt-1">機會（內容）</div>
-
-                  <input v-model="hiddenConfigLocal.prizes[r-1].chance.title"
-                         class="mt-3 w-full px-4 py-3 rounded-2xl border border-white/15 bg-black/40 text-white font-black outline-none"
-                         placeholder="機會內容名稱（必填）">
-
-                  <div class="mt-3 flex items-center gap-3 flex-wrap">
-                    <input type="file" class="hidden" :ref="'chanceFile'+r" @change="(e)=>handleHiddenImage(r,'chance',e)">
-                    <button class="btn-neon" @click="$refs['chanceFile'+r].click()">
-                      上傳圖片
+              <div class="mt-3 grid grid-cols-1 gap-3">
+                <div class="glass-card rounded-2xl p-3 border border-white/10">
+                  <div class="secret-sub">機會（內容）</div>
+                  <input v-model="hp.chanceText"
+                         class="mt-2 px-4 py-3 w-full rounded-2xl border border-white/15 bg-black/40 text-white font-bold outline-none"
+                         placeholder="機會卡牌翻開內容（文字）">
+                  <div class="mt-2 flex items-center gap-3 flex-wrap">
+                    <input type="file" :ref="'chanceFile'+idx" class="hidden" @change="(e)=>handleHiddenImg(e, idx, 'chance')">
+                    <button class="btn-neon" @click="triggerHiddenFile(idx,'chance')">
+                      上傳機會圖片
                     </button>
-                    <div class="text-white/60 font-black text-xs">建議 16:9 或 4:3</div>
+                    <div v-if="hp.chanceImg" class="flex items-center gap-2">
+                      <img :src="hp.chanceImg" class="w-14 h-14 object-cover rounded-xl border border-white/15">
+                      <button class="btn-neon" @click="hp.chanceImg=''">移除</button>
+                    </div>
                   </div>
-
-                  <img v-if="hiddenConfigLocal.prizes[r-1].chance.img"
-                       :src="hiddenConfigLocal.prizes[r-1].chance.img"
-                       class="mt-3 w-full h-[140px] object-cover rounded-xl border border-white/10">
                 </div>
 
-                <!-- destiny -->
-                <div class="glass-card rounded-2xl border border-white/10 p-4">
-                  <div class="stage-sub">card</div>
-                  <div class="text-xl font-black mt-1">命運（內容）</div>
-
-                  <input v-model="hiddenConfigLocal.prizes[r-1].destiny.title"
-                         class="mt-3 w-full px-4 py-3 rounded-2xl border border-white/15 bg-black/40 text-white font-black outline-none"
-                         placeholder="命運內容名稱（必填）">
-
-                  <div class="mt-3 flex items-center gap-3 flex-wrap">
-                    <input type="file" class="hidden" :ref="'destinyFile'+r" @change="(e)=>handleHiddenImage(r,'destiny',e)">
-                    <button class="btn-neon" @click="$refs['destinyFile'+r].click()">
-                      上傳圖片
+                <div class="glass-card rounded-2xl p-3 border border-white/10">
+                  <div class="secret-sub">命運（內容）</div>
+                  <input v-model="hp.destinyText"
+                         class="mt-2 px-4 py-3 w-full rounded-2xl border border-white/15 bg-black/40 text-white font-bold outline-none"
+                         placeholder="命運卡牌翻開內容（文字）">
+                  <div class="mt-2 flex items-center gap-3 flex-wrap">
+                    <input type="file" :ref="'destinyFile'+idx" class="hidden" @change="(e)=>handleHiddenImg(e, idx, 'destiny')">
+                    <button class="btn-neon" @click="triggerHiddenFile(idx,'destiny')">
+                      上傳命運圖片
                     </button>
-                    <div class="text-white/60 font-black text-xs">建議 16:9 或 4:3</div>
+                    <div v-if="hp.destinyImg" class="flex items-center gap-2">
+                      <img :src="hp.destinyImg" class="w-14 h-14 object-cover rounded-xl border border-white/15">
+                      <button class="btn-neon" @click="hp.destinyImg=''">移除</button>
+                    </div>
                   </div>
-
-                  <img v-if="hiddenConfigLocal.prizes[r-1].destiny.img"
-                       :src="hiddenConfigLocal.prizes[r-1].destiny.img"
-                       class="mt-3 w-full h-[140px] object-cover rounded-xl border border-white/10">
                 </div>
               </div>
             </div>
           </div>
 
-          <div class="mt-5 flex gap-2 flex-wrap">
+          <div class="flex gap-2 flex-wrap mt-4">
             <button class="btn-neon" @click="loadParticipantsFromLocalStorage">
               讀取本機抽獎名單
             </button>
             <button class="btn-neon" @click="selectAllEligible">
               全選
             </button>
-            <button class="btn-neon btn-cyan" @click="saveHiddenConfigToFirebase">
+            <button class="btn-neon btn-pink" @click="saveHiddenConfigToFirebase">
               保存隱藏獎設定
             </button>
           </div>
 
-          <div class="glass-card rounded-2xl border border-white/10 p-4 mt-4 max-h-[320px] overflow-auto">
-            <div class="stage-sub">eligible list（本機）</div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-3">
+          <div class="glass-card rounded-2xl border border-white/10 p-3 mt-3 max-h-[360px] overflow-auto">
+            <div class="secret-sub">eligible list (本機)</div>
+            <div class="grid gap-2 mt-2">
               <label v-for="p in participants" :key="p.id"
                      class="glass-card rounded-xl px-3 py-2 border border-white/10 flex items-center gap-2 cursor-pointer">
                 <input type="checkbox"
@@ -686,6 +783,7 @@
 
     </div>
   </main>
+
 
   <!-- =========================
        原本的：抽獎舞台 + 後台
@@ -963,26 +1061,22 @@ const { createApp, ref, computed, nextTick, onMounted, watch } = Vue;
 
 createApp({
   setup() {
-
     /* ========================
-       URL mode（玩家 / 強制顯示）
+       URL mode（玩家 / secret bypass）
        ======================== */
     const url = new URL(location.href);
     const qPlayer = url.searchParams.get('player') === '1';
-    const qGarden = url.searchParams.get('garden') === '1';
-    const qAdmin = url.searchParams.get('secret') === '1';
-    const qForceSecret = url.searchParams.get('secret') === '1' || url.searchParams.get('garden') === '1';
-
+    const qSecret = url.searchParams.get('secret') === '1';
     const sessionId = ref(url.searchParams.get('session') || 'ingeni_gala_2025');
-    const view = ref(qPlayer ? 'player' : (qGarden ? 'secretStage' : (qAdmin ? 'secretAdmin' : 'stage')));
+    const view = ref(qPlayer ? 'player' : (qSecret ? 'secretStage' : 'stage'));
 
-    /* ========================
-       原本 localStorage 資料
-       ======================== */
     const stageStep = ref('select');
     const contentRevealed = ref(false);
     const isProcessing = ref(false);
 
+    /* ========================
+       原本 localStorage 資料
+       ======================== */
     const participants = ref(JSON.parse(localStorage.getItem('sincere_v2025_users') || '[]'));
     const prizes = ref(JSON.parse(localStorage.getItem('sincere_v2025_prizes') || '[]'));
     const winners = ref(JSON.parse(localStorage.getItem('sincere_v2025_winners') || '[]'));
@@ -1012,26 +1106,20 @@ createApp({
     const changeView = (v) => {
       view.value = v;
 
-      const base = new URL(location.origin + location.pathname);
-      base.searchParams.set('session', sessionId.value);
-
-      if (v === 'player') base.searchParams.set('player','1');
-      if (v === 'secretStage') base.searchParams.set('garden','1');
-      if (v === 'secretAdmin') base.searchParams.set('secret','1');
-
-      history.replaceState({}, '', base.toString());
-    };
-
-    const enterSecretStage = async () => {
-      changeView('secretStage');
-      await initFirebaseIfNeeded();
-      await nextTick();
-      renderGardenQR();
-    };
-
-    const enterSecretAdmin = async () => {
-      changeView('secretAdmin');
-      await initFirebaseIfNeeded();
+      const u = new URL(location.href);
+      if (v === 'player') {
+        u.searchParams.set('player', '1');
+        u.searchParams.set('session', sessionId.value);
+        u.searchParams.delete('secret');
+      } else if (v === 'secretStage' || v === 'secretAdmin') {
+        u.searchParams.set('secret', '1');
+        u.searchParams.set('session', sessionId.value);
+        u.searchParams.delete('player');
+      } else {
+        u.searchParams.delete('player');
+        u.searchParams.delete('secret');
+      }
+      history.replaceState({}, '', u.toString());
     };
 
     /* ========================
@@ -1191,7 +1279,7 @@ createApp({
        Firebase + Minigame + Hidden Prize
        ======================== */
 
-    // Firebase 專案設定（你目前成功可用的版本：保留）
+    // Firebase 專案設定（apiKey 注意：這裡是字母 O，不是數字 0）
     const firebaseConfig = {
       apiKey: "AIzaSyBx0poH4TayC2LLwOaO2mmC6d5Fd3yszsE",
       authDomain: "ingnei2026.firebaseapp.com",
@@ -1213,7 +1301,6 @@ createApp({
     const secretTop10 = ref([]);
     const secretTargetInput = ref(5000);
 
-    // Join URL（用來做 QR；前台不顯示網址文字）
     const joinUrl = computed(() => {
       const base = location.origin + location.pathname;
       const u = new URL(base);
@@ -1228,6 +1315,10 @@ createApp({
       return Math.max(0, Math.min(100, Math.round((v / t) * 100)));
     });
 
+    // QR refs（舞台/管理員）
+    const qrCanvasStage = ref(null);
+    const qrCanvasAdmin = ref(null);
+
     // 玩家端狀態
     const playerNameInput = ref(localStorage.getItem(`minigame_name_${sessionId.value}`) || '');
     const playerStatusText = ref('');
@@ -1236,57 +1327,53 @@ createApp({
     let playerPending = 0;
     let playerFlushTimer = null;
 
-    // QR canvas（祕密舞台）
-    const gardenQrCanvas = ref(null);
-
-    function renderGardenQR() {
-      try {
-        if (gardenQrCanvas.value && window.QRCode) {
-          QRCode.toCanvas(gardenQrCanvas.value, joinUrl.value, { width: 260, margin: 1 }, () => {});
-        }
-      } catch (e) {}
-    }
-
-    // Hidden Prize Config（本地編輯用，保存到 Firebase）
-    const hiddenConfigLocal = ref({
-      prizes: [
-        { order: 1, name: '', chance: { title: '', img: '' }, destiny: { title: '', img: '' } },
-        { order: 2, name: '', chance: { title: '', img: '' }, destiny: { title: '', img: '' } },
-        { order: 3, name: '', chance: { title: '', img: '' }, destiny: { title: '', img: '' } },
-      ],
-      eligibleIds: []
-    });
-
-    // Hidden Prize（本機名單）
+    // Hidden config（管理員設定）
     const hiddenEligibleIds = ref([]);
-    const hiddenSpinLock = ref(false);
+    const hiddenPrizeConfig = ref([
+      { name:'', chanceText:'', destinyText:'', chanceImg:'', destinyImg:'' },
+      { name:'', chanceText:'', destinyText:'', chanceImg:'', destinyImg:'' },
+      { name:'', chanceText:'', destinyText:'', chanceImg:'', destinyImg:'' },
+    ]);
 
-    // Hidden state（由 Firebase 同步）
+    // Hidden state
+    const hiddenSpinLock = ref(false);
     const hiddenRound = ref(1);
     const hiddenExcludedIds = ref([]);
     const hiddenRoundsData = ref({});
-    const hiddenShowCards = ref(false);
-    const hiddenCardChosen = ref(null);
-    const hiddenRevealNote = ref('');
 
-    // summary
+    // UI steps
+    const hiddenStageStep = ref('pick'); // pick / cards
+    const hiddenFlipChance = ref(false);
+    const hiddenFlipDestiny = ref(false);
+
+    const hiddenRevealNote = ref('');
     const hiddenSummaryOpen = ref(false);
     const hiddenSummaryRows = ref([]);
 
-    const hiddenCandidateA = computed(() => {
-      const r = hiddenRoundsData.value[String(hiddenRound.value)] || {};
-      const ids = r.pickedIds || [];
-      return ids[0] ? (participants.value.find(x => x.id === ids[0])?.name || `#${ids[0]}`) : '';
-    });
-    const hiddenCandidateB = computed(() => {
-      const r = hiddenRoundsData.value[String(hiddenRound.value)] || {};
-      const ids = r.pickedIds || [];
-      return ids[1] ? (participants.value.find(x => x.id === ids[1])?.name || `#${ids[1]}`) : '';
-    });
+    // 切換動畫
+    const modeSwitchFlash = ref(false);
+    let lastMode = 'minigame';
 
     const hiddenCurrentPrizeName = computed(() => {
-      const p = (hiddenConfigLocal.value.prizes || [])[hiddenRound.value - 1];
-      return p?.name || '';
+      const idx = Math.max(0, Math.min(2, (hiddenRound.value - 1)));
+      return (hiddenPrizeConfig.value[idx]?.name || '').trim();
+    });
+
+    const hiddenCardChanceText = computed(() => {
+      const idx = Math.max(0, Math.min(2, (hiddenRound.value - 1)));
+      return (hiddenPrizeConfig.value[idx]?.chanceText || '').trim();
+    });
+    const hiddenCardDestinyText = computed(() => {
+      const idx = Math.max(0, Math.min(2, (hiddenRound.value - 1)));
+      return (hiddenPrizeConfig.value[idx]?.destinyText || '').trim();
+    });
+    const hiddenCardChanceImg = computed(() => {
+      const idx = Math.max(0, Math.min(2, (hiddenRound.value - 1)));
+      return hiddenPrizeConfig.value[idx]?.chanceImg || '';
+    });
+    const hiddenCardDestinyImg = computed(() => {
+      const idx = Math.max(0, Math.min(2, (hiddenRound.value - 1)));
+      return hiddenPrizeConfig.value[idx]?.destinyImg || '';
     });
 
     const hiddenHasTwoPicked = computed(() => {
@@ -1299,25 +1386,49 @@ createApp({
       return r.cardRevealed === true && hiddenRound.value < 3;
     });
 
-    const hiddenRevealedContentTitle = computed(() => {
+    const hiddenPickedIds = computed(() => {
       const r = hiddenRoundsData.value[String(hiddenRound.value)] || {};
-      return r.revealedContent?.title || '';
+      return r.pickedIds || [];
     });
-    const hiddenRevealedContentImg = computed(() => {
-      const r = hiddenRoundsData.value[String(hiddenRound.value)] || {};
-      return r.revealedContent?.img || '';
+
+    const hiddenCandidateAObj = computed(() => {
+      const id = hiddenPickedIds.value[0];
+      if (!id) return null;
+      return participants.value.find(x => x.id === id) || { id, name: `#${id}`, photo:'' };
+    });
+    const hiddenCandidateBObj = computed(() => {
+      const id = hiddenPickedIds.value[1];
+      if (!id) return null;
+      return participants.value.find(x => x.id === id) || { id, name: `#${id}`, photo:'' };
     });
 
     function fbPath(p) { return `sessions/${sessionId.value}/${p}`; }
 
     async function ensureSignedIn() {
       if (!fbAuth) return;
-      if (fbAuth.currentUser) { fbUid = fbAuth.currentUser.uid; return; }
+      if (fbAuth.currentUser) {
+        fbUid = fbAuth.currentUser.uid;
+        return;
+      }
       const cred = await fbAuth.signInAnonymously();
       fbUid = cred.user.uid;
     }
 
-    let topTimer = null;
+    function renderQRCode(targetCanvas, text) {
+      try {
+        if (!targetCanvas) return;
+        if (!window.QRCode) return;
+        // 清空再畫（避免某些瀏覽器不重繪）
+        const ctx = targetCanvas.getContext && targetCanvas.getContext('2d');
+        if (ctx) ctx.clearRect(0,0,targetCanvas.width || 300, targetCanvas.height || 300);
+
+        QRCode.toCanvas(targetCanvas, text, { width: 220, margin: 1 }, (err) => {
+          if (err) console.error(err);
+        });
+      } catch (e) {
+        console.error(e);
+      }
+    }
 
     async function initFirebaseIfNeeded() {
       if (fbReady.value) return true;
@@ -1338,73 +1449,75 @@ createApp({
         fbReady.value = true;
         fbError.value = '';
 
-        // 初始化 mode/minigame
-        await fbDb.ref(fbPath('mode')).transaction(cur => cur || 'minigame');
-        await fbDb.ref(fbPath('minigame')).transaction(cur => {
-          const v = cur || {};
-          if (!v.targetPoints) v.targetPoints = 5000;
-          if (!v.totalPoints) v.totalPoints = 0;
-          return v;
-        });
-
-        // 監聽 mode
+        // mode
         fbDb.ref(fbPath('mode')).on('value', (snap) => {
-          secretMode.value = snap.val() || 'minigame';
+          const m = snap.val() || 'minigame';
+          secretMode.value = m;
+
+          // mode 切換效果
+          if (lastMode !== m && m === 'hiddenPrize') {
+            doModeSwitchFx();
+          }
+          lastMode = m;
+
           if (view.value === 'player') {
             playerClickDisabled.value = (secretMode.value !== 'minigame');
-            if (playerClickDisabled.value) playerStatusText.value = '目前不是集氣模式，請看主舞台。';
+            if (playerClickDisabled.value) {
+              playerStatusText.value = '目前不是集氣模式，請看主舞台。';
+            }
+          }
+
+          // 切到 hiddenPrize：舞台自動進入抽取狀態
+          if (m === 'hiddenPrize') {
+            hiddenStageStep.value = 'pick';
+            hiddenFlipChance.value = false;
+            hiddenFlipDestiny.value = false;
+            hiddenRevealNote.value = '';
           }
         });
 
-        // 監聽 minigame total/target（達標自動切換）
+        // minigame
         fbDb.ref(fbPath('minigame')).on('value', async (snap) => {
           const v = snap.val() || {};
           secretTargetPoints.value = Number(v.targetPoints || 5000);
           secretTotalPoints.value = Number(v.totalPoints || 0);
           secretTargetInput.value = secretTargetPoints.value;
 
+          // 達標自動切換（任何端都會嘗試，避免某端沒開著）
           if (secretTotalPoints.value >= secretTargetPoints.value) {
             try {
-              // 達標 → 切換 hiddenPrize（只要當下仍是 minigame 才切）
               await fbDb.ref(fbPath('mode')).transaction((cur) => {
                 if (!cur || cur === 'minigame') return 'hiddenPrize';
                 return cur;
               });
-              // 確保 hidden state 初始化
-              await ensureHiddenStateInit(false);
             } catch {}
           }
         });
 
-        // 監聽 top10
+        // top board
         fbDb.ref(fbPath('minigameTop')).on('value', (snap) => {
           const arr = snap.val() || [];
           secretTop10.value = Array.isArray(arr) ? arr : [];
         });
 
-        // 監聽 hidden config（同步到本地編輯）
+        // hidden config
         fbDb.ref(fbPath('hidden/config')).on('value', (snap) => {
           const cfg = snap.val() || {};
           const prizesCfg = cfg.prizes || [];
-          if (Array.isArray(prizesCfg) && prizesCfg.length) {
-            const next = {
-              prizes: [0,1,2].map(i => {
-                const x = prizesCfg[i] || {};
-                return {
-                  order: i+1,
-                  name: x.name || '',
-                  chance: { title: x.chance?.title || '', img: x.chance?.img || '' },
-                  destiny: { title: x.destiny?.title || '', img: x.destiny?.img || '' },
-                };
-              }),
-              eligibleIds: cfg.eligibleIds || []
+          const nextCfg = [0,1,2].map(i => {
+            const item = prizesCfg[i] || {};
+            return {
+              name: item.name || hiddenPrizeConfig.value[i]?.name || '',
+              chanceText: item.chanceText || hiddenPrizeConfig.value[i]?.chanceText || '',
+              destinyText: item.destinyText || hiddenPrizeConfig.value[i]?.destinyText || '',
+              chanceImg: item.chanceImg || hiddenPrizeConfig.value[i]?.chanceImg || '',
+              destinyImg: item.destinyImg || hiddenPrizeConfig.value[i]?.destinyImg || '',
             };
-            hiddenConfigLocal.value = next;
-          }
-          if (Array.isArray(cfg.eligibleIds)) hiddenEligibleIds.value = cfg.eligibleIds;
+          });
+          hiddenPrizeConfig.value = nextCfg;
         });
 
-        // 監聽 hidden state
+        // hidden state
         fbDb.ref(fbPath('hidden/state')).on('value', (snap) => {
           const st = snap.val() || {};
           hiddenRound.value = Number(st.currentRound || 1);
@@ -1419,28 +1532,58 @@ createApp({
           });
         }
 
-        // Secret Stage / Admin：定期重算 top10（確保一定會更新）
-        if (view.value === 'secretStage' || view.value === 'secretAdmin') {
-          if (!topTimer) {
-            topTimer = setInterval(async () => {
-              try {
-                const snap = await fbDb.ref(fbPath('players')).get();
-                const players = snap.val() || {};
-                const arr = Object.keys(players).map(uid => ({
-                  name: players[uid]?.name || '匿名',
-                  count: Number(players[uid]?.count || 0)
-                })).sort((a,b)=>b.count-a.count).slice(0, 10);
-                await fbDb.ref(fbPath('minigameTop')).set(arr);
-              } catch {}
-            }, 1500);
-          }
+        // 管理員：每2秒重算 Top10
+        if (view.value === 'secretAdmin') {
+          setInterval(async () => {
+            try {
+              const snap = await fbDb.ref(fbPath('players')).get();
+              const players = snap.val() || {};
+              const arr = Object.keys(players).map(uid => ({
+                name: players[uid]?.name || '匿名',
+                count: Number(players[uid]?.count || 0)
+              })).sort((a,b)=>b.count-a.count).slice(0, 10);
+              await fbDb.ref(fbPath('minigameTop')).set(arr);
+            } catch {}
+          }, 2000);
         }
+
+        // 初始化
+        await fbDb.ref(fbPath('mode')).transaction(cur => cur || 'minigame');
+        await fbDb.ref(fbPath('minigame')).transaction(cur => {
+          const v = cur || {};
+          if (!v.targetPoints) v.targetPoints = 5000;
+          if (!v.totalPoints) v.totalPoints = 0;
+          return v;
+        });
+
+        // QR：等 DOM ready 再畫（舞台/管理員）
+        nextTick(() => {
+          setTimeout(() => {
+            if (qrCanvasStage.value) renderQRCode(qrCanvasStage.value, joinUrl.value);
+            if (qrCanvasAdmin.value) renderQRCode(qrCanvasAdmin.value, joinUrl.value);
+          }, 0);
+        });
 
         return true;
       } catch (e) {
         console.error(e);
         fbError.value = 'Firebase 連線/驗證失敗：請檢查 Anonymous、Authorized domains、Rules、databaseURL';
         return false;
+      }
+    }
+
+    function doModeSwitchFx() {
+      try {
+        modeSwitchFlash.value = true;
+
+        // 多段煙火
+        confetti({ particleCount: 120, spread: 80, origin: { y: 0.55 } });
+        setTimeout(() => confetti({ particleCount: 180, spread: 110, origin: { y: 0.45 } }), 220);
+        setTimeout(() => confetti({ particleCount: 220, spread: 140, origin: { y: 0.35 } }), 420);
+
+        setTimeout(() => { modeSwitchFlash.value = false; }, 900);
+      } catch {
+        modeSwitchFlash.value = false;
       }
     }
 
@@ -1478,7 +1621,7 @@ createApp({
         playerFlushTimer = setTimeout(async () => {
           playerFlushTimer = null;
           await playerFlush();
-        }, 450);
+        }, 500);
       }
     }
 
@@ -1505,22 +1648,39 @@ createApp({
       await fbDb.ref(fbPath('minigame')).update({ targetPoints: t });
     }
 
+    // 1) 重置集氣：連排行板都要歸零（minigameTop + players 也清掉）
     async function secretHostResetMinigame() {
       const ok = await initFirebaseIfNeeded();
       if (!ok) return alert(fbError.value || 'Firebase 尚未就緒');
 
-      if (!confirm('確定重置集氣？totalPoints 會歸零')) return;
+      if (!confirm('確定重置集氣？totalPoints / 排行 / 玩家點擊會歸零')) return;
+
       await fbDb.ref(fbPath('minigame')).update({ totalPoints: 0 });
       await fbDb.ref(fbPath('minigameTop')).set([]);
+      await fbDb.ref(fbPath('players')).remove();       // ✅ 清空所有玩家記錄（排行必定歸零）
       await fbDb.ref(fbPath('mode')).set('minigame');
+
+      // 同步把 hidden state 重置（避免殘留上一輪）
+      await fbDb.ref(fbPath('hidden/state')).set({
+        currentRound: 1,
+        excludedIds: [],
+        rounds: {}
+      });
+
+      hiddenStageStep.value = 'pick';
+      hiddenFlipChance.value = false;
+      hiddenFlipDestiny.value = false;
+      hiddenRevealNote.value = '';
+
+      confetti({ particleCount: 120, spread: 90, origin: { y: 0.6 } });
     }
 
     async function secretHostForceHiddenPrize() {
       const ok = await initFirebaseIfNeeded();
       if (!ok) return alert(fbError.value || 'Firebase 尚未就緒');
+
       await ensureHiddenStateInit(true);
       await fbDb.ref(fbPath('mode')).set('hiddenPrize');
-      alert('已切換到 hiddenPrize（請到祕密主舞台進行翻牌）');
     }
 
     function loadParticipantsFromLocalStorage() {
@@ -1533,28 +1693,48 @@ createApp({
         return;
       }
       hiddenEligibleIds.value = participants.value.map(p => p.id);
-      hiddenConfigLocal.value.eligibleIds = hiddenEligibleIds.value;
     }
 
     function selectAllEligible() {
       hiddenEligibleIds.value = participants.value.map(p => p.id);
-      hiddenConfigLocal.value.eligibleIds = hiddenEligibleIds.value;
     }
 
-    function resizeToDataURL(file, maxW=960, maxH=720, quality=0.86) {
+    function triggerHiddenFile(idx, which) {
+      const key = (which === 'chance') ? ('chanceFile'+idx) : ('destinyFile'+idx);
+      const el = (this && this.$refs && this.$refs[key]) ? this.$refs[key] : null;
+      // Vue3 setup refs 在 return，這裡用 DOM 找不到，因此改用 querySelector：
+      // 但此處使用 :ref 綁定會在 $refs 內，setup return 也可用 template refs 直接呼叫。
+      // 我們用 nextTick + document query 做保險：
+      nextTick(() => {
+        const inputs = document.querySelectorAll('input[type="file"]');
+        // 找最接近按鈕所在卡片內的 file input（fallback）
+        const card = event?.target?.closest('.glass-card') || null;
+        if (card) {
+          const fi = card.querySelector('input[type="file"]');
+          if (fi) fi.click();
+          return;
+        }
+        if (inputs && inputs.length) inputs[0].click();
+      });
+    }
+
+    function resizeImageToDataURL(file, maxSize=720, quality=0.85) {
       return new Promise((resolve) => {
         const reader = new FileReader();
         reader.onload = (ev) => {
           const img = new Image();
           img.onload = () => {
-            const ratio = Math.min(maxW / img.width, maxH / img.height, 1);
-            const w = Math.round(img.width * ratio);
-            const h = Math.round(img.height * ratio);
+            const w = img.width, h = img.height;
+            const scale = Math.min(1, maxSize / Math.max(w, h));
+            const nw = Math.max(1, Math.round(w * scale));
+            const nh = Math.max(1, Math.round(h * scale));
             const canvas = document.createElement('canvas');
-            canvas.width = w; canvas.height = h;
+            canvas.width = nw;
+            canvas.height = nh;
             const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, w, h);
-            resolve(canvas.toDataURL('image/jpeg', quality));
+            ctx.drawImage(img, 0, 0, nw, nh);
+            const data = canvas.toDataURL('image/jpeg', quality);
+            resolve(data);
           };
           img.src = ev.target.result;
         };
@@ -1562,56 +1742,46 @@ createApp({
       });
     }
 
-    async function handleHiddenImage(round, which, e) {
+    async function handleHiddenImg(e, idx, which) {
       const file = e.target.files && e.target.files[0];
       if (!file) return;
-
-      const dataUrl = await resizeToDataURL(file, 980, 740, 0.86);
-      const idx = round - 1;
-      if (!hiddenConfigLocal.value.prizes[idx]) return;
-
-      hiddenConfigLocal.value.prizes[idx][which].img = dataUrl;
+      const dataUrl = await resizeImageToDataURL(file, 720, 0.85);
+      const cfg = hiddenPrizeConfig.value.slice();
+      if (which === 'chance') cfg[idx].chanceImg = dataUrl;
+      else cfg[idx].destinyImg = dataUrl;
+      hiddenPrizeConfig.value = cfg;
     }
 
     async function saveHiddenConfigToFirebase() {
       const ok = await initFirebaseIfNeeded();
       if (!ok) return alert(fbError.value || 'Firebase 尚未就緒');
 
-      // sync eligible
-      hiddenConfigLocal.value.eligibleIds = hiddenEligibleIds.value;
-
-      const cfg = hiddenConfigLocal.value;
-      if (!cfg || !cfg.prizes || cfg.prizes.length !== 3) return alert('設定異常：prizes 需為 3 輪');
+      const names = hiddenPrizeConfig.value.map(x => (x.name||'').trim());
+      if (names.some(x => !x)) return alert('請填滿 3 個獎項名稱');
       if (!hiddenEligibleIds.value || hiddenEligibleIds.value.length < 2) return alert('eligible 至少要 2 人');
 
-      // 必填檢查（獎項名稱 & 兩張卡的內容名稱）
-      for (let i=0;i<3;i++){
-        const p = cfg.prizes[i];
-        if (!p.name || !p.name.trim()) return alert(`Round ${i+1}：請填獎項名稱`);
-        if (!p.chance.title || !p.chance.title.trim()) return alert(`Round ${i+1}：請填「機會」內容名稱`);
-        if (!p.destiny.title || !p.destiny.title.trim()) return alert(`Round ${i+1}：請填「命運」內容名稱`);
-      }
-
       await fbDb.ref(fbPath('hidden/config')).set({
-        prizes: cfg.prizes.map(p => ({
-          order: p.order,
-          name: (p.name||'').trim(),
-          chance: { title: (p.chance.title||'').trim(), img: p.chance.img || '' },
-          destiny: { title: (p.destiny.title||'').trim(), img: p.destiny.img || '' },
-        })),
+        prizes: [
+          { order: 1, name: hiddenPrizeConfig.value[0].name, chanceText: hiddenPrizeConfig.value[0].chanceText, destinyText: hiddenPrizeConfig.value[0].destinyText, chanceImg: hiddenPrizeConfig.value[0].chanceImg, destinyImg: hiddenPrizeConfig.value[0].destinyImg },
+          { order: 2, name: hiddenPrizeConfig.value[1].name, chanceText: hiddenPrizeConfig.value[1].chanceText, destinyText: hiddenPrizeConfig.value[1].destinyText, chanceImg: hiddenPrizeConfig.value[1].chanceImg, destinyImg: hiddenPrizeConfig.value[1].destinyImg },
+          { order: 3, name: hiddenPrizeConfig.value[2].name, chanceText: hiddenPrizeConfig.value[2].chanceText, destinyText: hiddenPrizeConfig.value[2].destinyText, chanceImg: hiddenPrizeConfig.value[2].chanceImg, destinyImg: hiddenPrizeConfig.value[2].destinyImg },
+        ],
         eligibleIds: hiddenEligibleIds.value
       });
 
-      await ensureHiddenStateInit(false);
-      alert('隱藏獎設定已保存（請到祕密主舞台進行抽人/翻牌）');
+      await ensureHiddenStateInit(true);
+      alert('隱藏獎設定已保存');
     }
 
     async function ensureHiddenStateInit(force=false) {
-      if (!fbDb) return;
       const stRef = fbDb.ref(fbPath('hidden/state'));
       await stRef.transaction((cur) => {
         if (cur && !force) return cur;
-        return { currentRound: 1, excludedIds: [], rounds: {} };
+        return {
+          currentRound: 1,
+          excludedIds: [],
+          rounds: {}
+        };
       });
     }
 
@@ -1627,27 +1797,32 @@ createApp({
     async function hiddenPickTwoWithSpin() {
       const ok = await initFirebaseIfNeeded();
       if (!ok) return alert(fbError.value || 'Firebase 尚未就緒');
+
       if (secretMode.value !== 'hiddenPrize') return alert('目前不在 hiddenPrize 模式');
 
-      await ensureHiddenStateInit(false);
+      await ensureHiddenStateInit();
 
       const cfgSnap = await fbDb.ref(fbPath('hidden/config')).get();
       const cfg = cfgSnap.val() || {};
       const allEligible = cfg.eligibleIds || [];
-      if (!allEligible.length) return alert('尚未保存隱藏獎設定（請先到「管理員」保存）');
+      if (!allEligible.length) return alert('尚未保存隱藏獎設定（管理員頁按「保存隱藏獎設定」）');
 
       const stSnap = await fbDb.ref(fbPath('hidden/state')).get();
       const st = stSnap.val() || {};
       const excluded = Array.isArray(st.excludedIds) ? st.excludedIds : [];
-      const remain = allEligible.filter(id => !new Set(excluded).has(id));
+
+      const exSet = new Set(excluded);
+      const remain = allEligible.filter(id => !exSet.has(id));
+
       if (remain.length < 2) return alert('可抽名單不足 2 人');
 
       hiddenSpinLock.value = true;
-      hiddenShowCards.value = false;
-      hiddenCardChosen.value = null;
+      hiddenStageStep.value = 'pick';
+      hiddenFlipChance.value = false;
+      hiddenFlipDestiny.value = false;
       hiddenRevealNote.value = '';
 
-      // UI 快速跳動 2.2 秒（只更新本機畫面）
+      // UI 快速跳動 2.2 秒（更新本地顯示）
       const spinTimer = setInterval(() => {
         const pick = uniquePick2(remain);
         if (!pick) return;
@@ -1673,7 +1848,7 @@ createApp({
           const key = String(cr);
           const rr = rounds[key] || {};
 
-          // 已抽過就不重抽
+          // 若此輪已抽過就不覆蓋
           if (Array.isArray(rr.pickedIds) && rr.pickedIds.length === 2) return s;
 
           rounds[key] = {
@@ -1681,8 +1856,7 @@ createApp({
             pickedIds: [a, b],
             pickedAt: Date.now(),
             cardRevealed: false,
-            revealedCard: null,
-            revealedContent: null
+            cardChosen: null
           };
 
           const oldEx = Array.isArray(s.excludedIds) ? s.excludedIds : [];
@@ -1692,24 +1866,36 @@ createApp({
         });
 
         hiddenSpinLock.value = false;
-        confetti({ particleCount: 120, spread: 90, origin: { y: 0.5 } });
+
+        // 抽完更豐富特效
+        confetti({ particleCount: 150, spread: 100, origin: { y: 0.55 } });
+        setTimeout(() => confetti({ particleCount: 220, spread: 140, origin: { y: 0.45 } }), 250);
+
+        // 自動跳到翻牌區塊
+        hiddenStageStep.value = 'cards';
       }, 2200);
     }
 
-    async function hiddenRevealCard(which) {
+    function hiddenGoCards() {
+      if (!hiddenHasTwoPicked.value) return;
+      hiddenStageStep.value = 'cards';
+    }
+
+    async function hiddenToggleFlip(which) {
       const ok = await initFirebaseIfNeeded();
       if (!ok) return alert(fbError.value || 'Firebase 尚未就緒');
       if (!hiddenHasTwoPicked.value) return alert('尚未抽出 2 人');
-      if (hiddenCardChosen.value) return; // 已翻牌就鎖
 
-      // 取得此輪對應內容（從 config）
-      const idx = hiddenRound.value - 1;
-      const prizeCfg = hiddenConfigLocal.value.prizes[idx];
-      if (!prizeCfg) return alert('找不到此輪設定，請先到管理員保存設定');
+      // 翻牌動畫（兩張都可手動翻）
+      if (which === 'chance') hiddenFlipChance.value = !hiddenFlipChance.value;
+      else hiddenFlipDestiny.value = !hiddenFlipDestiny.value;
 
-      const content = which === 'chance'
-        ? { title: prizeCfg.chance.title || '', img: prizeCfg.chance.img || '' }
-        : { title: prizeCfg.destiny.title || '', img: prizeCfg.destiny.img || '' };
+      // 第一次「任何一張」翻開時，才寫入 cardRevealed（避免顯示得獎人）
+      const r = hiddenRoundsData.value[String(hiddenRound.value)] || {};
+      if (r.cardRevealed === true) {
+        hiddenRevealNote.value = '已揭曉本輪獎項內容';
+        return;
+      }
 
       await fbDb.ref(fbPath('hidden/state')).transaction((cur) => {
         const s = cur || {};
@@ -1722,17 +1908,16 @@ createApp({
         rounds[key] = {
           ...rr,
           cardRevealed: true,
-          revealedCard: which,
-          revealedContent: content,
+          cardChosen: which,
           revealedAt: Date.now()
         };
         return { ...s, rounds };
       });
 
-      hiddenCardChosen.value = which;
-      hiddenRevealNote.value = `已翻開：${which === 'chance' ? '機會' : '命運'}（本輪已揭曉）`;
+      hiddenRevealNote.value = '已揭曉本輪獎項內容';
       confetti({ particleCount: 180, spread: 110, origin: { y: 0.45 } });
 
+      // 最後一輪：開總結
       if (hiddenRound.value === 3) {
         setTimeout(() => openHiddenSummaryModal(), 650);
       }
@@ -1741,24 +1926,23 @@ createApp({
     async function hiddenNextRound() {
       if (!hiddenCanNextRound.value) return;
 
-      hiddenShowCards.value = false;
-      hiddenCardChosen.value = null;
+      hiddenStageStep.value = 'pick';
+      hiddenFlipChance.value = false;
+      hiddenFlipDestiny.value = false;
       hiddenRevealNote.value = '';
 
       await fbDb.ref(fbPath('hidden/state')).update({ currentRound: hiddenRound.value + 1 });
+      confetti({ particleCount: 110, spread: 85, origin: { y: 0.6 } });
     }
 
     function openHiddenSummaryModal() {
-      const cfgPrizes = hiddenConfigLocal.value.prizes || [];
       const rows = [1,2,3].map(r => {
         const rr = hiddenRoundsData.value[String(r)] || {};
         const ids = rr.pickedIds || [];
         const names = ids.map(id => participants.value.find(x => x.id === id)?.name || `#${id}`);
-        const prizeName = cfgPrizes[r-1]?.name || `Round${r}`;
-        const revealedCard = rr.revealedCard ? (rr.revealedCard === 'chance' ? '機會' : '命運') : '-';
-        const contentTitle = rr.revealedContent?.title || '';
-        const contentImg = rr.revealedContent?.img || '';
-        return { round: r, prize: prizeName, winners: names, revealedCard, contentTitle, contentImg };
+
+        const prizeName = (hiddenPrizeConfig.value[r-1]?.name || '').trim() || `獎項${r}`;
+        return { round: r, prize: prizeName, winners: names };
       });
       hiddenSummaryRows.value = rows;
       hiddenSummaryOpen.value = true;
@@ -1770,37 +1954,57 @@ createApp({
       stageStep.value = 'select';
     }
 
-    /* ===== Lifecycle ===== */
+    /* ====== Lifecycle ====== */
     onMounted(async () => {
       if (view.value === 'player' || view.value === 'secretStage' || view.value === 'secretAdmin') {
         await initFirebaseIfNeeded();
       }
-      if (view.value === 'secretStage') {
-        await nextTick();
-        renderGardenQR();
+      if (view.value === 'player') {
+        playerClickDisabled.value = false;
       }
+
+      // 進入秘密舞台時補畫 QR（避免 RWD 或載入順序導致沒畫到）
+      nextTick(() => {
+        setTimeout(() => {
+          if (qrCanvasStage.value) renderQRCode(qrCanvasStage.value, joinUrl.value);
+          if (qrCanvasAdmin.value) renderQRCode(qrCanvasAdmin.value, joinUrl.value);
+        }, 50);
+      });
     });
 
     watch(view, async (v) => {
       if (v === 'player' || v === 'secretStage' || v === 'secretAdmin') {
         await initFirebaseIfNeeded();
-        if (v === 'secretStage') {
-          await nextTick();
-          renderGardenQR();
-        }
+        nextTick(() => {
+          setTimeout(() => {
+            if (qrCanvasStage.value) renderQRCode(qrCanvasStage.value, joinUrl.value);
+            if (qrCanvasAdmin.value) renderQRCode(qrCanvasAdmin.value, joinUrl.value);
+          }, 50);
+        });
       }
     });
 
+    // joinUrl 變動（例如 session 改）也重畫 QR
+    watch(joinUrl, () => {
+      nextTick(() => {
+        setTimeout(() => {
+          if (qrCanvasStage.value) renderQRCode(qrCanvasStage.value, joinUrl.value);
+          if (qrCanvasAdmin.value) renderQRCode(qrCanvasAdmin.value, joinUrl.value);
+        }, 0);
+      });
+    });
+
     return {
-      // query
-      qForceSecret,
+      // URL flags
+      qSecret,
 
       // views
-      view, changeView,
-      enterSecretStage, enterSecretAdmin,
+      view, changeView, stageStep, contentRevealed,
 
-      // stage/admin originals
-      stageStep, contentRevealed, isProcessing,
+      // header / secret
+      secretUnlocked,
+
+      // original
       participants, prizes, winners,
       newUser, tempMainPrize, editingId,
       activePrize, drawSequence, currentSequenceIndex, isSpinning, currentSpinId, justWon,
@@ -1814,10 +2018,7 @@ createApp({
       preparePrize, revealPrize, startOneSpin, nextSlot, resetCurrentRound, completeAll,
       exportData, clearAll,
 
-      // secret flags
-      secretUnlocked,
-
-      // firebase/minigame
+      // secret firebase
       fbError,
       sessionId, secretMode,
       secretTargetPoints, secretTotalPoints, secretTop10,
@@ -1827,30 +2028,38 @@ createApp({
       playerNameInput, playerStatusText, playerMyCount, playerClickDisabled,
       playerConfirmName, playerClick,
 
-      // secret stage QR
-      gardenQrCanvas,
-
-      // admin controls
+      // admin minigame controls
       secretHostSaveTarget, secretHostResetMinigame, secretHostForceHiddenPrize,
 
-      // hidden config + images
-      hiddenConfigLocal,
+      // hidden config + flow
       hiddenEligibleIds,
+      hiddenPrizeConfig,
       loadParticipantsFromLocalStorage, selectAllEligible, saveHiddenConfigToFirebase,
-      handleHiddenImage,
+      handleHiddenImg,
+      triggerHiddenFile,
 
-      // hidden flow (on secret stage)
       hiddenRound,
-      hiddenCandidateA, hiddenCandidateB,
       hiddenCurrentPrizeName,
-      hiddenShowCards, hiddenCardChosen, hiddenRevealNote,
+      hiddenCandidateAObj, hiddenCandidateBObj,
+
+      hiddenStageStep,
+      hiddenFlipChance, hiddenFlipDestiny,
+      hiddenCardChanceText, hiddenCardDestinyText,
+      hiddenCardChanceImg, hiddenCardDestinyImg,
+
+      hiddenRevealNote,
       hiddenHasTwoPicked, hiddenCanNextRound,
-      hiddenPickTwoWithSpin, hiddenRevealCard, hiddenNextRound,
-      hiddenRevealedContentTitle, hiddenRevealedContentImg,
+      hiddenPickTwoWithSpin, hiddenToggleFlip, hiddenNextRound, hiddenGoCards,
 
       // summary
       hiddenSummaryOpen, hiddenSummaryRows,
       completeHiddenAndBackToStage,
+
+      // QR refs
+      qrCanvasStage, qrCanvasAdmin,
+
+      // fx
+      modeSwitchFlash
     };
   }
 }).mount('#app');

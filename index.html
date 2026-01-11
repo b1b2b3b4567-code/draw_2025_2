@@ -9,10 +9,10 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 
-  <!-- Firebase compat (不用 module，最好跟你原本寫法一致) -->
+  <!-- Firebase compat (單檔 index.html 最適合這種) -->
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
@@ -42,7 +42,7 @@
     ::-webkit-scrollbar { width: 5px; }
     ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
 
-    /* ===== Secret Mode: 霓虹系（Inside Out vibe：亮色在深底） ===== */
+    /* ===== Secret Mode: Inside Out Palette（亮色在深底） ===== */
     .neon-bg {
       background:
         radial-gradient(900px 560px at 20% 15%, rgba(59, 130, 246, 0.20), transparent 60%),
@@ -51,9 +51,7 @@
         linear-gradient(180deg, #070a18, #0a0f25);
       border: 1px solid rgba(255,255,255,0.08);
     }
-    .neon-border {
-      position: relative;
-    }
+    .neon-border { position: relative; }
     .neon-border:before {
       content:"";
       position:absolute; inset:-1px;
@@ -268,6 +266,10 @@
             </div>
           </div>
         </div>
+
+        <div v-if="fbError" class="mt-4 text-red-300 font-black">
+          Firebase 錯誤：{{ fbError }}
+        </div>
       </div>
     </div>
   </main>
@@ -363,6 +365,10 @@
                 <div class="font-black text-blue-200">{{ (t.count||0).toLocaleString('zh-TW') }}</div>
               </div>
             </div>
+          </div>
+
+          <div v-if="fbError" class="mt-4 text-red-300 font-black">
+            Firebase 錯誤：{{ fbError }}
           </div>
         </section>
 
@@ -820,7 +826,7 @@
 </div>
 
 <script>
-const { createApp, ref, computed, nextTick, onMounted } = Vue;
+const { createApp, ref, computed, nextTick, onMounted, watch } = Vue;
 
 createApp({
   setup() {
@@ -831,8 +837,8 @@ createApp({
     const qPlayer = url.searchParams.get('player') === '1';
     const qSecret = url.searchParams.get('secret') === '1';
     const sessionId = ref(url.searchParams.get('session') || 'ingeni_gala_2025');
-
     const view = ref(qPlayer ? 'player' : (qSecret ? 'secretHost' : 'stage'));
+
     const stageStep = ref('select');
     const contentRevealed = ref(false);
     const isProcessing = ref(false);
@@ -844,4 +850,782 @@ createApp({
     const prizes = ref(JSON.parse(localStorage.getItem('sincere_v2025_prizes') || '[]'));
     const winners = ref(JSON.parse(localStorage.getItem('sincere_v2025_winners') || '[]'));
 
-    const newUser = ref({ name: '', p
+    const newUser = ref({ name: '', photo: '' });
+    const tempMainPrize = ref({ name: '', subItems: [{ label: '', count: 1 }], eligibleIds: [] });
+    const editingId = ref(null);
+
+    const activePrize = ref(null);
+    const drawSequence = ref([]);
+    const currentSequenceIndex = ref(0);
+    const isSpinning = ref(false);
+    const currentSpinId = ref(null);
+    const justWon = ref(null);
+
+    const saveAllData = () => {
+      localStorage.setItem('sincere_v2025_users', JSON.stringify(participants.value));
+      localStorage.setItem('sincere_v2025_prizes', JSON.stringify(prizes.value));
+      localStorage.setItem('sincere_v2025_winners', JSON.stringify(winners.value));
+    };
+
+    const secretUnlocked = computed(() => {
+      const p = prizes.value || [];
+      return p.length > 0 && p.every(x => x && x.isFinished === true);
+    });
+
+    const changeView = (v) => {
+      view.value = v;
+      if (v === 'player') {
+        const u = new URL(location.href);
+        u.searchParams.set('player', '1');
+        u.searchParams.set('session', sessionId.value);
+        u.searchParams.delete('secret');
+        history.replaceState({}, '', u.toString());
+      } else if (v === 'secretHost') {
+        const u = new URL(location.href);
+        u.searchParams.set('secret', '1');
+        u.searchParams.set('session', sessionId.value);
+        u.searchParams.delete('player');
+        history.replaceState({}, '', u.toString());
+      } else {
+        const u = new URL(location.href);
+        u.searchParams.delete('player');
+        u.searchParams.delete('secret');
+        history.replaceState({}, '', u.toString());
+      }
+    };
+
+    const enterSecretHost = () => {
+      changeView('secretHost');
+      initFirebaseIfNeeded();
+    };
+
+    /* ========================
+       原本功能：照片、名單、獎項
+       ======================== */
+    const handleImage = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const size = 150;
+          canvas.width = size; canvas.height = size;
+          canvas.getContext('2d').drawImage(img, 0, 0, size, size);
+          newUser.value.photo = canvas.toDataURL('image/jpeg', 0.85);
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    };
+
+    const addParticipant = () => {
+      if (!newUser.value.name || !newUser.value.photo) return alert('請上傳照片並輸入姓名');
+      participants.value = [...participants.value, { id: Date.now(), ...newUser.value }];
+      newUser.value = { name: '', photo: '' };
+      saveAllData();
+    };
+
+    const removeParticipant = (id) => {
+      participants.value = participants.value.filter(p => p.id !== id);
+      saveAllData();
+    };
+
+    const addSubItem = () => tempMainPrize.value.subItems.push({ label: '', count: 1 });
+    const removeSubItem = (idx) => tempMainPrize.value.subItems.splice(idx, 1);
+
+    const saveMainPrize = () => {
+      if (!tempMainPrize.value.name) return;
+      if (editingId.value) {
+        const idx = prizes.value.findIndex(p => p.id === editingId.value);
+        prizes.value[idx] = { ...tempMainPrize.value, id: editingId.value };
+        editingId.value = null;
+      } else {
+        prizes.value = [...prizes.value, { id: Date.now(), ...tempMainPrize.value, isFinished: false }];
+      }
+      tempMainPrize.value = { name: '', subItems: [{ label: '', count: 1 }], eligibleIds: [] };
+      saveAllData();
+    };
+
+    const editPrize = (p) => {
+      editingId.value = p.id;
+      tempMainPrize.value = { ...p, subItems: [...p.subItems.map(i => ({...i}))], eligibleIds: [...(p.eligibleIds||[])] };
+    };
+    const cancelEdit = () => {
+      editingId.value = null;
+      tempMainPrize.value = { name: '', subItems: [{ label: '', count: 1 }], eligibleIds: [] };
+    };
+
+    const removePrize = (id) => {
+      prizes.value = prizes.value.filter(p => p.id !== id);
+      saveAllData();
+    };
+
+    const resetPrize = (id) => {
+      if (confirm('確定重置此獎項？得獎者會放回抽獎池。')) {
+        winners.value = winners.value.filter(w => w.prizeId !== id);
+        const p = prizes.value.find(p => p.id === id);
+        if (p) p.isFinished = false;
+        saveAllData();
+      }
+    };
+
+    const currentEligiblePool = computed(() => {
+      const winIds = winners.value.map(w => w.userId);
+      let pool = participants.value.filter(p => !winIds.includes(p.id));
+      if (activePrize.value && activePrize.value.eligibleIds?.length > 0) {
+        pool = pool.filter(p => activePrize.value.eligibleIds.includes(p.id));
+      }
+      return pool;
+    });
+
+    const preparePrize = (prize) => {
+      activePrize.value = prize;
+      contentRevealed.value = false;
+      stageStep.value = 'preview';
+      const sequence = [];
+      [...prize.subItems].reverse().forEach(item => {
+        for (let i = 0; i < item.count; i++) sequence.push({ label: item.label, winner: null });
+      });
+      drawSequence.value = sequence;
+      currentSequenceIndex.value = 0;
+      justWon.value = null;
+    };
+
+    const revealPrize = () => {
+      contentRevealed.value = true;
+      confetti({ particleCount: 50, spread: 60, origin: { y: 0.3 } });
+    };
+
+    const startOneSpin = () => {
+      if (currentEligiblePool.value.length === 0) return alert('沒人可以抽了');
+      isSpinning.value = true;
+      justWon.value = null;
+      const timer = setInterval(() => {
+        const idx = Math.floor(Math.random() * currentEligiblePool.value.length);
+        currentSpinId.value = currentEligiblePool.value[idx].id;
+      }, 80);
+      setTimeout(() => {
+        clearInterval(timer);
+        const winner = currentEligiblePool.value.find(p => p.id === currentSpinId.value);
+        nextTick(() => {
+          justWon.value = winner;
+          drawSequence.value[currentSequenceIndex.value].winner = winner;
+          winners.value = [...winners.value, { userId: winner.id, prizeId: activePrize.value.id }];
+          isSpinning.value = false;
+          saveAllData();
+          confetti({ particleCount: 200, spread: 100, origin: { y: 0.5 } });
+        });
+      }, 3000);
+    };
+
+    const nextSlot = () => {
+      justWon.value = null;
+      currentSequenceIndex.value++;
+      if (currentSequenceIndex.value >= drawSequence.value.length) {
+        activePrize.value.isFinished = true;
+        saveAllData();
+      }
+    };
+
+    const completeAll = () => { stageStep.value = 'select'; };
+
+    const resetCurrentRound = () => {
+      if (confirm('確定重置本輪？')) {
+        winners.value = winners.value.filter(w => w.prizeId !== activePrize.value.id);
+        drawSequence.value.forEach(s => s.winner = null);
+        currentSequenceIndex.value = 0;
+        justWon.value = null;
+        saveAllData();
+      }
+    };
+
+    const exportData = () => {
+      const blob = new Blob([JSON.stringify({ participants: participants.value, prizes: prizes.value, winners: winners.value })], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `Sincere_Draw_2025_Backup.json`;
+      a.click();
+    };
+
+    const clearAll = () => { if(confirm('真的要清空所有資料嗎？')) { localStorage.clear(); location.reload(); } };
+
+    /* ========================
+       ===== Secret Mode =====
+       Firebase + Minigame + Hidden Prize
+       ======================== */
+
+    // 你的 Firebase 專案設定（已填入你提供的資料）
+    const firebaseConfig = {
+      apiKey: "AIzaSyBx0poH4TayC2LLw0aO2mmC6d5Fd3yszsE",
+      authDomain: "ingnei2026.firebaseapp.com",
+      databaseURL: "https://ingnei2026-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "ingnei2026",
+      storageBucket: "ingnei2026.firebasestorage.app",
+      messagingSenderId: "575015932774",
+      appId: "1:575015932774:web:95da6ba5b0011519732ea7"
+    };
+
+    const fbReady = ref(false);
+    const fbError = ref('');
+    let fbApp = null, fbAuth = null, fbDb = null;
+    let fbUid = null;
+
+    const secretMode = ref('minigame'); // minigame / hiddenPrize
+    const secretTargetPoints = ref(5000);
+    const secretTotalPoints = ref(0);
+    const secretTop10 = ref([]);
+    const secretTargetInput = ref(5000);
+
+    const joinUrl = computed(() => {
+      const base = location.origin + location.pathname;
+      const u = new URL(base);
+      u.searchParams.set('player', '1');
+      u.searchParams.set('session', sessionId.value);
+      return u.toString();
+    });
+
+    const secretProgressPct = computed(() => {
+      const t = Math.max(1, Number(secretTargetPoints.value || 1));
+      const v = Number(secretTotalPoints.value || 0);
+      return Math.max(0, Math.min(100, Math.round((v / t) * 100)));
+    });
+
+    // 玩家端狀態
+    const playerNameInput = ref(localStorage.getItem(`minigame_name_${sessionId.value}`) || '');
+    const playerStatusText = ref('');
+    const playerMyCount = ref(0);
+    const playerClickDisabled = ref(false);
+    let playerPending = 0;
+    let playerFlushTimer = null;
+
+    // Hidden Prize
+    const hiddenPrizeNames = ref(['', '', '']);
+    const hiddenEligibleIds = ref([]);
+    const hiddenSpinLock = ref(false);
+
+    const hiddenRound = ref(1);
+    const hiddenExcludedIds = ref([]);
+    const hiddenRoundsData = ref({});
+    const hiddenShowCards = ref(false);
+    const hiddenCardChosen = ref(null);
+    const hiddenRevealNote = ref('');
+
+    const hiddenSummaryOpen = ref(false);
+    const hiddenSummaryRows = ref([]);
+
+    const qrCanvas = ref(null);
+
+    const hiddenCandidateA = computed(() => {
+      const r = hiddenRoundsData.value[String(hiddenRound.value)] || {};
+      const ids = r.pickedIds || [];
+      return ids[0] ? (participants.value.find(x => x.id === ids[0])?.name || `#${ids[0]}`) : '-';
+    });
+    const hiddenCandidateB = computed(() => {
+      const r = hiddenRoundsData.value[String(hiddenRound.value)] || {};
+      const ids = r.pickedIds || [];
+      return ids[1] ? (participants.value.find(x => x.id === ids[1])?.name || `#${ids[1]}`) : '-';
+    });
+    const hiddenCurrentPrizeName = computed(() => hiddenPrizeNames.value[hiddenRound.value - 1] || '');
+
+    const hiddenRemainCount = computed(() => {
+      const all = (hiddenEligibleIds.value || []);
+      const ex = new Set(hiddenExcludedIds.value || []);
+      return all.filter(id => !ex.has(id)).length;
+    });
+
+    const hiddenHasTwoPicked = computed(() => {
+      const r = hiddenRoundsData.value[String(hiddenRound.value)] || {};
+      return (r.pickedIds || []).length === 2;
+    });
+
+    const hiddenCanNextRound = computed(() => {
+      const r = hiddenRoundsData.value[String(hiddenRound.value)] || {};
+      return r.cardRevealed === true && hiddenRound.value < 3;
+    });
+
+    function fbPath(p) { return `sessions/${sessionId.value}/${p}`; }
+
+    async function ensureSignedIn() {
+      if (!fbAuth) return;
+      if (fbAuth.currentUser) {
+        fbUid = fbAuth.currentUser.uid;
+        return;
+      }
+      const cred = await fbAuth.signInAnonymously();
+      fbUid = cred.user.uid;
+    }
+
+    async function initFirebaseIfNeeded() {
+      if (fbReady.value) return true;
+
+      if (!(view.value === 'player' || view.value === 'secretHost')) return false;
+
+      try {
+        if (!firebaseConfig.apiKey || !firebaseConfig.databaseURL) {
+          fbError.value = 'Firebase 設定不完整（apiKey 或 databaseURL 缺少）';
+          return false;
+        }
+
+        // 防止重複 initialize
+        fbApp = (firebase.apps && firebase.apps.length) ? firebase.app() : firebase.initializeApp(firebaseConfig);
+        fbAuth = firebase.auth();
+        fbDb = firebase.database();
+
+        await ensureSignedIn();
+        fbReady.value = true;
+        fbError.value = '';
+
+        // 監聽 mode / minigame / top
+        fbDb.ref(fbPath('mode')).on('value', (snap) => {
+          secretMode.value = snap.val() || 'minigame';
+
+          if (view.value === 'player') {
+            playerClickDisabled.value = (secretMode.value !== 'minigame');
+            if (playerClickDisabled.value) {
+              playerStatusText.value = '目前不是集氣模式，請看主舞台。';
+            }
+          }
+        });
+
+        fbDb.ref(fbPath('minigame')).on('value', async (snap) => {
+          const v = snap.val() || {};
+          secretTargetPoints.value = Number(v.targetPoints || 5000);
+          secretTotalPoints.value = Number(v.totalPoints || 0);
+          secretTargetInput.value = secretTargetPoints.value;
+
+          // 達標自動切換
+          if (secretTotalPoints.value >= secretTargetPoints.value) {
+            try {
+              await fbDb.ref(fbPath('mode')).transaction((cur) => {
+                if (!cur || cur === 'minigame') return 'hiddenPrize';
+                return cur;
+              });
+            } catch {}
+          }
+        });
+
+        fbDb.ref(fbPath('minigameTop')).on('value', (snap) => {
+          const arr = snap.val() || [];
+          secretTop10.value = Array.isArray(arr) ? arr : [];
+        });
+
+        // hidden config / state
+        fbDb.ref(fbPath('hidden/config')).on('value', (snap) => {
+          const cfg = snap.val() || {};
+          const prizesCfg = cfg.prizes || [];
+          hiddenPrizeNames.value = [
+            prizesCfg[0]?.name || hiddenPrizeNames.value[0] || '',
+            prizesCfg[1]?.name || hiddenPrizeNames.value[1] || '',
+            prizesCfg[2]?.name || hiddenPrizeNames.value[2] || ''
+          ];
+        });
+
+        fbDb.ref(fbPath('hidden/state')).on('value', (snap) => {
+          const st = snap.val() || {};
+          hiddenRound.value = Number(st.currentRound || 1);
+          hiddenExcludedIds.value = Array.isArray(st.excludedIds) ? st.excludedIds : [];
+          hiddenRoundsData.value = st.rounds || {};
+        });
+
+        // 玩家：監聽自己 count
+        if (view.value === 'player') {
+          fbDb.ref(fbPath(`players/${fbUid}/count`)).on('value', (snap) => {
+            playerMyCount.value = Number(snap.val() || 0);
+          });
+        }
+
+        // 主持人：每2秒重算 Top10
+        if (view.value === 'secretHost') {
+          setInterval(async () => {
+            try {
+              const snap = await fbDb.ref(fbPath('players')).get();
+              const players = snap.val() || {};
+              const arr = Object.keys(players).map(uid => ({
+                name: players[uid]?.name || '匿名',
+                count: Number(players[uid]?.count || 0)
+              })).sort((a,b)=>b.count-a.count).slice(0, 10);
+              await fbDb.ref(fbPath('minigameTop')).set(arr);
+            } catch {}
+          }, 2000);
+
+          // 產生 QR
+          nextTick(() => {
+            try {
+              if (qrCanvas.value && window.QRCode) {
+                QRCode.toCanvas(qrCanvas.value, joinUrl.value, { width: 170, margin: 1 }, () => {});
+              }
+            } catch {}
+          });
+        }
+
+        // 初始化
+        await fbDb.ref(fbPath('mode')).transaction(cur => cur || 'minigame');
+        await fbDb.ref(fbPath('minigame')).transaction(cur => {
+          const v = cur || {};
+          if (!v.targetPoints) v.targetPoints = 5000;
+          if (!v.totalPoints) v.totalPoints = 0;
+          return v;
+        });
+
+        return true;
+      } catch (e) {
+        console.error(e);
+        fbError.value = 'Firebase 連線/驗證失敗：請檢查 Anonymous、Authorized domains、Rules、databaseURL';
+        return false;
+      }
+    }
+
+    /* ===== Player（集氣） ===== */
+    async function playerConfirmName() {
+      const ok = await initFirebaseIfNeeded();
+      if (!ok) return alert(fbError.value || 'Firebase 尚未就緒');
+
+      const clean = (playerNameInput.value || '').trim().slice(0, 18);
+      if (!clean) return alert('請輸入名字');
+
+      await fbDb.ref(fbPath(`players/${fbUid}`)).update({
+        name: clean,
+        lastActiveAt: firebase.database.ServerValue.TIMESTAMP,
+      });
+
+      localStorage.setItem(`minigame_name_${sessionId.value}`, clean);
+      playerStatusText.value = `你好，${clean}！開始集氣吧～`;
+      setTimeout(() => playerStatusText.value = '', 1500);
+    }
+
+    async function playerClick() {
+      const ok = await initFirebaseIfNeeded();
+      if (!ok) return alert(fbError.value || 'Firebase 尚未就緒');
+      if (playerClickDisabled.value) return;
+
+      const name = (playerNameInput.value || '').trim();
+      if (!name) {
+        playerStatusText.value = '請先輸入名字並按「確認進場」';
+        return;
+      }
+
+      playerPending += 1;
+      if (!playerFlushTimer) {
+        playerFlushTimer = setTimeout(async () => {
+          playerFlushTimer = null;
+          await playerFlush();
+        }, 500);
+      }
+    }
+
+    async function playerFlush() {
+      if (!playerPending) return;
+      const delta = playerPending;
+      playerPending = 0;
+
+      try {
+        await fbDb.ref(fbPath(`players/${fbUid}/count`)).transaction((cur) => Number(cur || 0) + delta);
+        await fbDb.ref(fbPath(`minigame/totalPoints`)).transaction((cur) => Number(cur || 0) + delta);
+        await fbDb.ref(fbPath(`players/${fbUid}`)).update({ lastActiveAt: firebase.database.ServerValue.TIMESTAMP });
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    /* ===== Host（集氣/隱藏獎） ===== */
+    async function secretHostSaveTarget() {
+      const ok = await initFirebaseIfNeeded();
+      if (!ok) return alert(fbError.value || 'Firebase 尚未就緒');
+
+      const t = Math.max(1, Math.floor(Number(secretTargetInput.value || 5000)));
+      await fbDb.ref(fbPath('minigame')).update({ targetPoints: t });
+    }
+
+    async function secretHostResetMinigame() {
+      const ok = await initFirebaseIfNeeded();
+      if (!ok) return alert(fbError.value || 'Firebase 尚未就緒');
+
+      if (!confirm('確定重置集氣？totalPoints 會歸零')) return;
+      await fbDb.ref(fbPath('minigame')).update({ totalPoints: 0 });
+      await fbDb.ref(fbPath('minigameTop')).set([]);
+      await fbDb.ref(fbPath('mode')).set('minigame');
+    }
+
+    async function secretHostForceHiddenPrize() {
+      const ok = await initFirebaseIfNeeded();
+      if (!ok) return alert(fbError.value || 'Firebase 尚未就緒');
+
+      await ensureHiddenStateInit(true);
+      await fbDb.ref(fbPath('mode')).set('hiddenPrize');
+    }
+
+    function loadParticipantsFromLocalStorage() {
+      try {
+        participants.value = JSON.parse(localStorage.getItem('sincere_v2025_users') || '[]');
+      } catch { participants.value = []; }
+
+      if (!participants.value.length) {
+        alert('讀不到本機名單：請先在「後台管理」新增人員（同一台電腦/同一瀏覽器）');
+        return;
+      }
+      hiddenEligibleIds.value = participants.value.map(p => p.id);
+    }
+
+    function selectAllEligible() {
+      hiddenEligibleIds.value = participants.value.map(p => p.id);
+    }
+
+    async function saveHiddenConfigToFirebase() {
+      const ok = await initFirebaseIfNeeded();
+      if (!ok) return alert(fbError.value || 'Firebase 尚未就緒');
+
+      const names = hiddenPrizeNames.value.map(x => (x||'').trim());
+      if (names.some(x => !x)) return alert('請填滿 3 個獎品名稱');
+      if (!hiddenEligibleIds.value || hiddenEligibleIds.value.length < 2) return alert('eligible 至少要 2 人');
+
+      await fbDb.ref(fbPath('hidden/config')).set({
+        prizes: [
+          { id: 'r1', order: 1, name: names[0] },
+          { id: 'r2', order: 2, name: names[1] },
+          { id: 'r3', order: 3, name: names[2] },
+        ],
+        eligibleIds: hiddenEligibleIds.value
+      });
+
+      await ensureHiddenStateInit(true);
+      alert('隱藏獎設定已保存');
+    }
+
+    async function ensureHiddenStateInit(force=false) {
+      const stRef = fbDb.ref(fbPath('hidden/state'));
+      await stRef.transaction((cur) => {
+        if (cur && !force) return cur;
+        return {
+          currentRound: 1,
+          excludedIds: [],
+          rounds: {}
+        };
+      });
+    }
+
+    function uniquePick2(arr) {
+      if (!arr || arr.length < 2) return null;
+      const a = arr[Math.floor(Math.random() * arr.length)];
+      let b = a, guard = 0;
+      while (b === a && guard++ < 40) b = arr[Math.floor(Math.random() * arr.length)];
+      if (a === b) return null;
+      return [a, b];
+    }
+
+    async function hiddenPickTwoWithSpin() {
+      const ok = await initFirebaseIfNeeded();
+      if (!ok) return alert(fbError.value || 'Firebase 尚未就緒');
+
+      if (secretMode.value !== 'hiddenPrize') return alert('目前不在 hiddenPrize 模式');
+
+      await ensureHiddenStateInit();
+
+      const cfgSnap = await fbDb.ref(fbPath('hidden/config')).get();
+      const cfg = cfgSnap.val() || {};
+      const allEligible = cfg.eligibleIds || [];
+      if (!allEligible.length) return alert('尚未保存隱藏獎設定（右側按「保存隱藏獎設定」）');
+
+      const stSnap = await fbDb.ref(fbPath('hidden/state')).get();
+      const st = stSnap.val() || {};
+      const excluded = Array.isArray(st.excludedIds) ? st.excludedIds : [];
+
+      const exSet = new Set(excluded);
+      const remain = allEligible.filter(id => !exSet.has(id));
+
+      if (remain.length < 2) return alert('可抽名單不足 2 人');
+
+      hiddenSpinLock.value = true;
+      hiddenShowCards.value = false;
+      hiddenCardChosen.value = null;
+      hiddenRevealNote.value = '';
+
+      // UI 快速跳動 2.2 秒
+      const spinTimer = setInterval(() => {
+        const pick = uniquePick2(remain);
+        if (!pick) return;
+        const rd = JSON.parse(JSON.stringify(hiddenRoundsData.value || {}));
+        rd[String(hiddenRound.value)] = { ...(rd[String(hiddenRound.value)]||{}), pickedIds: [pick[0], pick[1]] };
+        hiddenRoundsData.value = rd;
+      }, 80);
+
+      setTimeout(async () => {
+        clearInterval(spinTimer);
+
+        const finalPick = uniquePick2(remain);
+        if (!finalPick) {
+          hiddenSpinLock.value = false;
+          return alert('抽取失敗，請再試一次');
+        }
+        const [a, b] = finalPick;
+
+        await fbDb.ref(fbPath('hidden/state')).transaction((cur) => {
+          const s = cur || { currentRound: 1, excludedIds: [], rounds: {} };
+          const cr = Number(s.currentRound || 1);
+          const rounds = s.rounds || {};
+          const key = String(cr);
+          const rr = rounds[key] || {};
+
+          if (Array.isArray(rr.pickedIds) && rr.pickedIds.length === 2) return s;
+
+          rounds[key] = {
+            ...rr,
+            pickedIds: [a, b],
+            pickedAt: Date.now(),
+            cardRevealed: false,
+            cardChosen: null
+          };
+
+          const oldEx = Array.isArray(s.excludedIds) ? s.excludedIds : [];
+          const newEx = Array.from(new Set([...oldEx, a, b]));
+
+          return { ...s, rounds, excludedIds: newEx };
+        });
+
+        hiddenSpinLock.value = false;
+        confetti({ particleCount: 120, spread: 90, origin: { y: 0.5 } });
+      }, 2200);
+    }
+
+    async function hiddenRevealCard(which) {
+      const ok = await initFirebaseIfNeeded();
+      if (!ok) return alert(fbError.value || 'Firebase 尚未就緒');
+
+      if (!hiddenHasTwoPicked.value) return alert('尚未抽出 2 人');
+      if (hiddenCardChosen.value) return;
+
+      await fbDb.ref(fbPath('hidden/state')).transaction((cur) => {
+        const s = cur || {};
+        const cr = Number(s.currentRound || 1);
+        const rounds = s.rounds || {};
+        const key = String(cr);
+        const rr = rounds[key] || {};
+        if (rr.cardRevealed === true) return s;
+
+        rounds[key] = {
+          ...rr,
+          cardRevealed: true,
+          cardChosen: which,
+          revealedAt: Date.now()
+        };
+        return { ...s, rounds };
+      });
+
+      hiddenCardChosen.value = which;
+      hiddenRevealNote.value = `已翻牌：${which.toUpperCase()}（本輪已揭曉）`;
+      confetti({ particleCount: 180, spread: 110, origin: { y: 0.45 } });
+
+      if (hiddenRound.value === 3) {
+        setTimeout(() => openHiddenSummaryModal(), 650);
+      }
+    }
+
+    async function hiddenNextRound() {
+      if (!hiddenCanNextRound.value) return;
+
+      hiddenShowCards.value = false;
+      hiddenCardChosen.value = null;
+      hiddenRevealNote.value = '';
+
+      await fbDb.ref(fbPath('hidden/state')).update({ currentRound: hiddenRound.value + 1 });
+    }
+
+    function openHiddenSummaryModal() {
+      const cfgNames = hiddenPrizeNames.value.map(x => (x||'').trim());
+      const rows = [1,2,3].map(r => {
+        const rr = hiddenRoundsData.value[String(r)] || {};
+        const ids = rr.pickedIds || [];
+        const names = ids.map(id => participants.value.find(x => x.id === id)?.name || `#${id}`);
+        return { round: r, prize: cfgNames[r-1] || `Round${r}`, winners: names };
+      });
+      hiddenSummaryRows.value = rows;
+      hiddenSummaryOpen.value = true;
+    }
+
+    function completeHiddenAndBackToStage() {
+      hiddenSummaryOpen.value = false;
+      changeView('stage');
+      stageStep.value = 'select';
+    }
+
+    /* ====== Lifecycle ====== */
+    onMounted(async () => {
+      if (view.value === 'player' || view.value === 'secretHost') {
+        await initFirebaseIfNeeded();
+      }
+      if (view.value === 'player') {
+        playerClickDisabled.value = false;
+      }
+    });
+
+    watch(view, async (v) => {
+      if (v === 'player' || v === 'secretHost') {
+        await initFirebaseIfNeeded();
+        if (v === 'secretHost') {
+          nextTick(() => {
+            try {
+              if (qrCanvas.value && window.QRCode) {
+                QRCode.toCanvas(qrCanvas.value, joinUrl.value, { width: 170, margin: 1 }, () => {});
+              }
+            } catch {}
+          });
+        }
+      }
+    });
+
+    return {
+      // views
+      view, changeView, stageStep, contentRevealed,
+
+      // header / secret
+      secretUnlocked, enterSecretHost,
+
+      // original
+      participants, prizes, winners,
+      newUser, tempMainPrize, editingId,
+      activePrize, drawSequence, currentSequenceIndex, isSpinning, currentSpinId, justWon,
+      currentEligiblePool,
+      currentDrawItem: computed(() => drawSequence.value[currentSequenceIndex.value]),
+      isAllDone: computed(() => currentSequenceIndex.value >= drawSequence.value.length),
+
+      handleImage, addParticipant, removeParticipant,
+      addSubItem, removeSubItem,
+      saveMainPrize, editPrize, cancelEdit, removePrize, resetPrize,
+      preparePrize, revealPrize, startOneSpin, nextSlot, resetCurrentRound, completeAll,
+      exportData, clearAll,
+
+      // secret firebase
+      fbError,
+      sessionId, secretMode,
+      secretTargetPoints, secretTotalPoints, secretTop10,
+      secretTargetInput, joinUrl, secretProgressPct,
+
+      // player
+      playerNameInput, playerStatusText, playerMyCount, playerClickDisabled,
+      playerConfirmName, playerClick,
+
+      // host minigame controls
+      secretHostSaveTarget, secretHostResetMinigame, secretHostForceHiddenPrize,
+
+      // hidden config + flow
+      hiddenPrizeNames, hiddenEligibleIds,
+      loadParticipantsFromLocalStorage, selectAllEligible, saveHiddenConfigToFirebase,
+      hiddenRound, hiddenRemainCount, hiddenCurrentPrizeName,
+      hiddenCandidateA, hiddenCandidateB,
+      hiddenShowCards, hiddenCardChosen, hiddenRevealNote,
+      hiddenHasTwoPicked, hiddenCanNextRound,
+      hiddenPickTwoWithSpin, hiddenRevealCard, hiddenNextRound,
+
+      // summary
+      hiddenSummaryOpen, hiddenSummaryRows,
+      completeHiddenAndBackToStage,
+
+      // refs
+      qrCanvas
+    };
+  }
+}).mount('#app');
+</script>
+</body>
+</html>

@@ -20,7 +20,7 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap');
 
-    /* ===== Global（修正：背景不要黑） ===== */
+    /* ===== Global（背景） ===== */
     body{
       font-family: 'Noto Sans TC', sans-serif;
       color:#fff;
@@ -48,6 +48,118 @@
 
     ::-webkit-scrollbar{ width:5px; }
     ::-webkit-scrollbar-thumb{ background:#333; border-radius:10px; }
+
+    /* ===== 主舞台標題：燈光/漂浮特效（新增） ===== */
+    .hero-wrap{
+      position: relative;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap: 10px;
+      padding: 10px 14px 16px;
+      border-radius: 28px;
+      isolation: isolate;
+    }
+    .hero-wrap:before{
+      content:"";
+      position:absolute;
+      inset:-24px;
+      background:
+        radial-gradient(420px 220px at 50% 30%, rgba(251,191,36,.20), transparent 65%),
+        radial-gradient(520px 260px at 35% 55%, rgba(59,130,246,.15), transparent 70%),
+        radial-gradient(520px 260px at 65% 55%, rgba(236,72,153,.13), transparent 70%);
+      filter: blur(10px);
+      z-index:-2;
+      animation: heroGlow 3.8s ease-in-out infinite;
+    }
+    @keyframes heroGlow{
+      0%,100%{ opacity:.85; transform: translateY(0) scale(1); }
+      50%{ opacity:1; transform: translateY(-2px) scale(1.01); }
+    }
+    .hero-float{
+      animation: heroFloat 4.6s ease-in-out infinite;
+      will-change: transform;
+    }
+    @keyframes heroFloat{
+      0%,100%{ transform: translateY(0); }
+      50%{ transform: translateY(-8px); }
+    }
+    .hero-title{
+      position:relative;
+      text-shadow:
+        0 0 18px rgba(251,191,36,.18),
+        0 0 38px rgba(59,130,246,.10),
+        0 0 58px rgba(236,72,153,.08);
+      filter: drop-shadow(0 20px 60px rgba(0,0,0,.28));
+    }
+    .hero-title:after{
+      /* 掃光 */
+      content:"";
+      position:absolute;
+      inset:-6px -14px;
+      border-radius: 18px;
+      background: linear-gradient(110deg,
+        transparent 0%,
+        rgba(255,255,255,.08) 18%,
+        rgba(251,191,36,.12) 30%,
+        rgba(255,255,255,.06) 40%,
+        transparent 60%);
+      transform: translateX(-120%) skewX(-16deg);
+      animation: sweep 2.9s ease-in-out infinite;
+      pointer-events:none;
+      mix-blend-mode: screen;
+      filter: blur(1px);
+      z-index:-1;
+    }
+    @keyframes sweep{
+      0%{ transform: translateX(-120%) skewX(-16deg); opacity:0; }
+      18%{ opacity:1; }
+      52%{ opacity:1; }
+      100%{ transform: translateX(120%) skewX(-16deg); opacity:0; }
+    }
+    .hero-sub{
+      position:relative;
+      text-shadow:
+        0 0 16px rgba(255,255,255,.12),
+        0 0 40px rgba(59,130,246,.10);
+      filter: drop-shadow(0 16px 50px rgba(0,0,0,.22));
+      animation: subPulse 2.8s ease-in-out infinite;
+    }
+    @keyframes subPulse{
+      0%,100%{ transform: translateY(0); opacity: .95; }
+      50%{ transform: translateY(-3px); opacity: 1; }
+    }
+    .stage-orbs{
+      position:absolute;
+      inset:-40px;
+      z-index:-3;
+      pointer-events:none;
+    }
+    .orb{
+      position:absolute;
+      width: 14px; height: 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.10);
+      box-shadow:
+        0 0 22px rgba(251,191,36,.18),
+        0 0 42px rgba(59,130,246,.12),
+        0 0 52px rgba(236,72,153,.10);
+      filter: blur(.2px);
+      animation: orbFloat 6.5s ease-in-out infinite;
+      opacity: .8;
+    }
+    .orb:nth-child(1){ left: 6%; top: 38%; animation-delay: .0s; transform: scale(1.0); }
+    .orb:nth-child(2){ left: 18%; top: 18%; animation-delay: .9s; transform: scale(1.2); }
+    .orb:nth-child(3){ left: 32%; top: 52%; animation-delay: 1.6s; transform: scale(.95); }
+    .orb:nth-child(4){ left: 50%; top: 14%; animation-delay: 2.2s; transform: scale(1.35); }
+    .orb:nth-child(5){ left: 66%; top: 48%; animation-delay: 2.9s; transform: scale(1.05); }
+    .orb:nth-child(6){ left: 82%; top: 20%; animation-delay: 3.6s; transform: scale(1.25); }
+    .orb:nth-child(7){ left: 92%; top: 44%; animation-delay: 4.2s; transform: scale(.9); }
+    @keyframes orbFloat{
+      0%,100%{ transform: translateY(0) scale(var(--s,1)); opacity:.65; }
+      50%{ transform: translateY(-18px) scale(var(--s,1)); opacity:1; }
+    }
 
     /* ===== Secret Mode Palette ===== */
     .neon-bg{
@@ -131,7 +243,7 @@
       white-space:nowrap;
     }
 
-    /* 翻牌卡（更大 + 拉更開） */
+    /* 翻牌卡 */
     .card2{
       width: 300px; height: 395px;
       border-radius: 26px;
@@ -312,7 +424,6 @@
   <header v-if="view !== 'player'"
           class="flex justify-between items-center mb-4 border-b border-white/12 pb-4">
     <div class="flex items-center gap-3 min-h-[44px]">
-      <!-- 2) 改成後台上傳 Logo（localStorage） -->
       <img v-if="brandLogo" :src="brandLogo" alt="Logo" class="brand-logo">
       <div v-else class="text-white/50 font-black text-sm tracking-widest">
         （請至後台上傳 Logo）
@@ -330,8 +441,7 @@
               class="px-4 py-1 font-bold">
         後台管理
       </button>
-
-      <!-- 管理員：一開始就永遠顯示（移除「必須抽完現金獎項」條件） -->
+      <!-- 管理員：一開始就永遠顯示 -->
       <button @click="changeView('secretAdmin')"
               :class="view === 'secretAdmin' ? 'text-blue-200 border-b-2 border-blue-200' : 'text-white/65'"
               class="px-4 py-1 font-bold">
@@ -534,7 +644,6 @@
           </div>
 
           <div v-if="hiddenWonPeople.length" class="mt-6">
-            <!-- 移除「（本次已抽到，從名單移出）」 -->
             <div class="secret-sub text-center">已中獎</div>
             <div class="mt-4 flex flex-wrap justify-center gap-3">
               <div v-for="p in hiddenWonPeople" :key="p.id" class="pool-pill won">
@@ -799,7 +908,7 @@
                      class="glass-card rounded-xl px-3 py-2 border border-white/10 flex items-center gap-2 cursor-pointer">
                 <input type="checkbox"
                        class="accent-blue-400 scale-110"
-                       :value="p.id"
+                       :value="Number(p.id)"
                        v-model="hiddenEligibleIds">
                 <div class="font-black truncate">{{ p.name }}</div>
               </label>
@@ -823,22 +932,30 @@
 
     <!-- Step 1: 選擇獎項 -->
     <div v-if="stageStep === 'select'" class="flex-1 flex flex-col items-center justify-center">
-      <div class="flex items-center gap-3 mb-4">
-        <h1 class="text-6xl md:text-8xl font-black gold-text tracking-tighter">新肌霓2026</h1>
+      <!-- 新增：燈光/漂浮/粒子 -->
+      <div class="hero-wrap hero-float mb-10">
+        <div class="stage-orbs">
+          <span class="orb"></span><span class="orb"></span><span class="orb"></span>
+          <span class="orb"></span><span class="orb"></span><span class="orb"></span><span class="orb"></span>
+        </div>
 
-        <!-- Secret icon -->
-        <button @click="changeView('secretStage')"
-                class="hover:scale-105 active:scale-100 transition"
-                title="Secret Mode">
-          <svg class="spark-ico" viewBox="0 0 24 24" fill="none">
-            <path d="M12 2l1.6 5.3L19 9l-5.4 1.7L12 16l-1.6-5.3L5 9l5.4-1.7L12 2z" fill="rgba(251,191,36,1)"/>
-            <path d="M19 14l.9 3 3.1 1-3.1 1-.9 3-.9-3L16 18l3.1-1L19 14z" fill="rgba(59,130,246,1)"/>
-            <path d="M4.5 14l.7 2.3 2.3.7-2.3.7-.7 2.3-.7-2.3-2.3-.7 2.3-.7.7-2.3z" fill="rgba(236,72,153,1)"/>
-          </svg>
-        </button>
+        <div class="flex items-center gap-3">
+          <h1 class="hero-title text-6xl md:text-8xl font-black gold-text tracking-tighter">新肌霓2026</h1>
+
+          <!-- Secret icon -->
+          <button @click="changeView('secretStage')"
+                  class="hover:scale-105 active:scale-100 transition"
+                  title="Secret Mode">
+            <svg class="spark-ico" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2l1.6 5.3L19 9l-5.4 1.7L12 16l-1.6-5.3L5 9l5.4-1.7L12 2z" fill="rgba(251,191,36,1)"/>
+              <path d="M19 14l.9 3 3.1 1-3.1 1-.9 3-.9-3L16 18l3.1-1L19 14z" fill="rgba(59,130,246,1)"/>
+              <path d="M4.5 14l.7 2.3 2.3.7-2.3.7-.7 2.3-.7-2.3-2.3-.7 2.3-.7.7-2.3z" fill="rgba(236,72,153,1)"/>
+            </svg>
+          </button>
+        </div>
+
+        <h2 class="hero-sub text-5xl md:text-6xl font-black text-white tracking-[0.5em] italic">尾牙抽大的</h2>
       </div>
-
-      <h2 class="text-5xl md:text-6xl font-black text-white mb-16 tracking-[0.5em] italic">尾牙抽大的</h2>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-6xl px-4">
         <button v-for="p in prizes" :key="p.id" @click="preparePrize(p)" :disabled="p.isFinished"
@@ -927,11 +1044,11 @@
 
         <div v-if="isSpinning" class="flex flex-col items-center">
           <div class="w-80 h-80 rounded-[80px] overflow-hidden border-[10px] border-white shadow-2xl mb-10">
-            <img :src="participants.find(p => p.id === currentSpinId)?.photo" class="w-full h-full object-cover">
+            <img :src="participants.find(p => Number(p.id) === Number(currentSpinId))?.photo" class="w-full h-full object-cover">
           </div>
           <div class="h-32 flex items-center">
             <h2 class="text-8xl font-black italic gold-text tracking-tighter">
-              {{ participants.find(p => p.id === currentSpinId)?.name }}
+              {{ participants.find(p => Number(p.id) === Number(currentSpinId))?.name }}
             </h2>
           </div>
           <p class="text-amber-300 font-black tracking-[1em] mt-8 animate-pulse uppercase">Searching...</p>
@@ -974,7 +1091,7 @@
   <main v-if="view === 'admin'" class="grid grid-cols-1 lg:grid-cols-2 gap-10">
     <section class="glass-card p-8 rounded-[40px]">
 
-      <!-- 2) 後台上傳 Logo（PNG only） -->
+      <!-- Logo（PNG only） -->
       <div class="mb-8 glass-card p-6 rounded-[30px] border border-white/10">
         <h2 class="text-xl font-black italic text-amber-400 mb-3">品牌 Logo（PNG）</h2>
         <div class="flex flex-wrap items-center gap-3">
@@ -1060,7 +1177,8 @@
         <div class="flex flex-wrap gap-2 max-h-40 overflow-y-auto p-4 bg-white/5 rounded-3xl mb-8 border border-white/10">
           <label v-for="p in participants" :key="p.id"
                  class="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full cursor-pointer text-xs text-white font-bold border border-white/10">
-            <input type="checkbox" :value="p.id" v-model="tempMainPrize.eligibleIds" class="accent-amber-400">
+            <!-- ✅ 這裡也強制 Number，避免歷史資料 string/number mismatch -->
+            <input type="checkbox" :value="Number(p.id)" v-model="tempMainPrize.eligibleIds" class="accent-amber-400">
             {{ p.name }}
           </label>
         </div>
@@ -1133,6 +1251,28 @@ createApp({
     const isProcessing = ref(false);
 
     /* ========================
+       ✅ Debug 修正：ID 型別統一（重點）
+       - 你遇到「開始抽獎 -> 沒人可以抽」最常見原因：eligibleIds 裡是字串，但 participants.id 是數字
+       - includes 會失敗 → pool 被濾到 0
+       - 這裡做「全資料正規化」，同時在 checkbox 用 Number(p.id)
+       ======================== */
+    const toNum = (v) => {
+      const n = Number(v);
+      return Number.isFinite(n) ? n : v;
+    };
+    const normalizePrize = (p) => {
+      const eligible = Array.isArray(p.eligibleIds) ? p.eligibleIds.map(toNum) : [];
+      const subItems = Array.isArray(p.subItems) ? p.subItems.map(x => ({...x, count: Number(x.count||1)})) : [];
+      return { ...p, id: toNum(p.id), eligibleIds: eligible, subItems };
+    };
+    const normalizeWinner = (w) => ({
+      ...w,
+      userId: toNum(w.userId),
+      prizeId: toNum(w.prizeId),
+    });
+    const normalizeParticipant = (p) => ({ ...p, id: toNum(p.id) });
+
+    /* ========================
        Logo（localStorage / PNG-only）
        ======================== */
     const BRAND_LOGO_KEY = 'ingeni_2026_brand_logo_png';
@@ -1182,11 +1322,19 @@ createApp({
     }
 
     /* ========================
-       原本 localStorage 資料
+       原本 localStorage 資料（讀取後立刻 normalize）
        ======================== */
-    const participants = ref(JSON.parse(localStorage.getItem('sincere_v2025_users') || '[]'));
-    const prizes = ref(JSON.parse(localStorage.getItem('sincere_v2025_prizes') || '[]'));
-    const winners = ref(JSON.parse(localStorage.getItem('sincere_v2025_winners') || '[]'));
+    const participants = ref((JSON.parse(localStorage.getItem('sincere_v2025_users') || '[]') || []).map(normalizeParticipant));
+    const prizes = ref((JSON.parse(localStorage.getItem('sincere_v2025_prizes') || '[]') || []).map(normalizePrize));
+    const winners = ref((JSON.parse(localStorage.getItem('sincere_v2025_winners') || '[]') || []).map(normalizeWinner));
+
+    // 再存回去，直接把舊資料（string ids）洗乾淨
+    const persistNormalized = () => {
+      localStorage.setItem('sincere_v2025_users', JSON.stringify(participants.value.map(normalizeParticipant)));
+      localStorage.setItem('sincere_v2025_prizes', JSON.stringify(prizes.value.map(normalizePrize)));
+      localStorage.setItem('sincere_v2025_winners', JSON.stringify(winners.value.map(normalizeWinner)));
+    };
+    persistNormalized();
 
     const newUser = ref({ name: '', photo: '' });
     const tempMainPrize = ref({ name: '', subItems: [{ label: '', count: 1 }], eligibleIds: [] });
@@ -1200,9 +1348,8 @@ createApp({
     const justWon = ref(null);
 
     const saveAllData = () => {
-      localStorage.setItem('sincere_v2025_users', JSON.stringify(participants.value));
-      localStorage.setItem('sincere_v2025_prizes', JSON.stringify(prizes.value));
-      localStorage.setItem('sincere_v2025_winners', JSON.stringify(winners.value));
+      // ✅ 存之前也 normalize
+      persistNormalized();
     };
 
     const changeView = (v) => {
@@ -1247,13 +1394,14 @@ createApp({
 
     const addParticipant = () => {
       if (!newUser.value.name || !newUser.value.photo) return alert('請上傳照片並輸入姓名');
-      participants.value = [...participants.value, { id: Date.now(), ...newUser.value }];
+      participants.value = [...participants.value, normalizeParticipant({ id: Date.now(), ...newUser.value })];
       newUser.value = { name: '', photo: '' };
       saveAllData();
     };
 
     const removeParticipant = (id) => {
-      participants.value = participants.value.filter(p => p.id !== id);
+      const nid = toNum(id);
+      participants.value = participants.value.filter(p => toNum(p.id) !== nid);
       saveAllData();
     };
 
@@ -1262,20 +1410,34 @@ createApp({
 
     const saveMainPrize = () => {
       if (!tempMainPrize.value.name) return;
+
+      // ✅ 確保 eligibleIds 是 number array
+      const payload = normalizePrize({
+        ...tempMainPrize.value,
+        eligibleIds: (tempMainPrize.value.eligibleIds || []).map(toNum),
+      });
+
       if (editingId.value) {
-        const idx = prizes.value.findIndex(p => p.id === editingId.value);
-        prizes.value[idx] = { ...tempMainPrize.value, id: editingId.value };
+        const eid = toNum(editingId.value);
+        const idx = prizes.value.findIndex(p => toNum(p.id) === eid);
+        prizes.value[idx] = { ...payload, id: eid };
         editingId.value = null;
       } else {
-        prizes.value = [...prizes.value, { id: Date.now(), ...tempMainPrize.value, isFinished: false }];
+        prizes.value = [...prizes.value, { ...payload, id: Date.now(), isFinished: false }];
       }
+
       tempMainPrize.value = { name: '', subItems: [{ label: '', count: 1 }], eligibleIds: [] };
       saveAllData();
     };
 
     const editPrize = (p) => {
-      editingId.value = p.id;
-      tempMainPrize.value = { ...p, subItems: [...p.subItems.map(i => ({...i}))], eligibleIds: [...(p.eligibleIds||[])] };
+      editingId.value = toNum(p.id);
+      const np = normalizePrize(p);
+      tempMainPrize.value = {
+        ...np,
+        subItems: [...np.subItems.map(i => ({...i}))],
+        eligibleIds: [...(np.eligibleIds||[])]
+      };
     };
     const cancelEdit = () => {
       editingId.value = null;
@@ -1283,39 +1445,51 @@ createApp({
     };
 
     const removePrize = (id) => {
-      prizes.value = prizes.value.filter(p => p.id !== id);
+      const nid = toNum(id);
+      prizes.value = prizes.value.filter(p => toNum(p.id) !== nid);
+      // 同時清掉該獎項得獎紀錄（避免卡池被清空）
+      winners.value = winners.value.filter(w => toNum(w.prizeId) !== nid);
       saveAllData();
     };
 
     const resetPrize = (id) => {
+      const nid = toNum(id);
       if (confirm('確定重置此獎項？得獎者會放回抽獎池。')) {
-        winners.value = winners.value.filter(w => w.prizeId !== id);
-        const p = prizes.value.find(p => p.id === id);
+        winners.value = winners.value.filter(w => toNum(w.prizeId) !== nid);
+        const p = prizes.value.find(p => toNum(p.id) === nid);
         if (p) p.isFinished = false;
         saveAllData();
       }
     };
 
     const currentEligiblePool = computed(() => {
-      const winIds = winners.value.map(w => w.userId);
-      let pool = participants.value.filter(p => !winIds.includes(p.id));
-      if (activePrize.value && activePrize.value.eligibleIds?.length > 0) {
-        pool = pool.filter(p => activePrize.value.eligibleIds.includes(p.id));
+      const winIds = (winners.value || []).map(w => toNum(w.userId));
+      let pool = (participants.value || []).filter(p => !winIds.includes(toNum(p.id)));
+
+      // ✅ 關鍵：eligibleIds 型別統一後，再做 includes
+      if (activePrize.value && Array.isArray(activePrize.value.eligibleIds) && activePrize.value.eligibleIds.length > 0) {
+        const allow = new Set(activePrize.value.eligibleIds.map(toNum));
+        pool = pool.filter(p => allow.has(toNum(p.id)));
       }
       return pool;
     });
 
     const preparePrize = (prize) => {
-      activePrize.value = prize;
+      // ✅ 避免 activePrize 指到「舊資料型別」：先 normalize 一次
+      activePrize.value = normalizePrize(prize);
+
       contentRevealed.value = false;
       stageStep.value = 'preview';
+
       const sequence = [];
-      [...prize.subItems].reverse().forEach(item => {
-        for (let i = 0; i < item.count; i++) sequence.push({ label: item.label, winner: null });
+      [...activePrize.value.subItems].reverse().forEach(item => {
+        for (let i = 0; i < Number(item.count || 1); i++) sequence.push({ label: item.label, winner: null });
       });
       drawSequence.value = sequence;
       currentSequenceIndex.value = 0;
       justWon.value = null;
+      // 立即洗一次（以防舊資料造成空池）
+      saveAllData();
     };
 
     const revealPrize = () => {
@@ -1324,20 +1498,39 @@ createApp({
     };
 
     const startOneSpin = () => {
-      if (currentEligiblePool.value.length === 0) return alert('沒人可以抽了');
+      // ✅ Debug：如果 pool=0，給清楚原因（可關掉 alert）
+      if (currentEligiblePool.value.length === 0) {
+        const all = participants.value.length;
+        const winCount = (new Set(winners.value.map(w => toNum(w.userId)))).size;
+        const elig = activePrize.value?.eligibleIds?.length || 0;
+        alert(
+          `沒人可以抽了。\n` +
+          `總人數: ${all}\n` +
+          `已中獎(不重複): ${winCount}\n` +
+          `本獎項指定池人數: ${elig ? elig : '未指定(全體)'}\n\n` +
+          `常見原因：\n` +
+          `1) 指定池名單沒有勾人（或只有已中獎的人）\n` +
+          `2) 舊資料 id 型別不一致（已在本版修正並自動洗資料）`
+        );
+        return;
+      }
+
       isSpinning.value = true;
       justWon.value = null;
       const timer = setInterval(() => {
         const idx = Math.floor(Math.random() * currentEligiblePool.value.length);
         currentSpinId.value = currentEligiblePool.value[idx].id;
       }, 80);
+
       setTimeout(() => {
         clearInterval(timer);
-        const winner = currentEligiblePool.value.find(p => p.id === currentSpinId.value);
+        const winner = currentEligiblePool.value.find(p => toNum(p.id) === toNum(currentSpinId.value));
         nextTick(() => {
           justWon.value = winner;
           drawSequence.value[currentSequenceIndex.value].winner = winner;
-          winners.value = [...winners.value, { userId: winner.id, prizeId: activePrize.value.id }];
+
+          winners.value = [...winners.value, normalizeWinner({ userId: toNum(winner.id), prizeId: toNum(activePrize.value.id) })];
+
           isSpinning.value = false;
           saveAllData();
           confetti({ particleCount: 200, spread: 100, origin: { y: 0.5 } });
@@ -1349,7 +1542,9 @@ createApp({
       justWon.value = null;
       currentSequenceIndex.value++;
       if (currentSequenceIndex.value >= drawSequence.value.length) {
-        activePrize.value.isFinished = true;
+        const pid = toNum(activePrize.value.id);
+        const p = prizes.value.find(x => toNum(x.id) === pid);
+        if (p) p.isFinished = true;
         saveAllData();
       }
     };
@@ -1357,17 +1552,27 @@ createApp({
     const completeAll = () => { stageStep.value = 'select'; };
 
     const resetCurrentRound = () => {
+      const pid = toNum(activePrize.value?.id);
+      if (!pid) return;
       if (confirm('確定重置本輪？')) {
-        winners.value = winners.value.filter(w => w.prizeId !== activePrize.value.id);
+        winners.value = winners.value.filter(w => toNum(w.prizeId) !== pid);
         drawSequence.value.forEach(s => s.winner = null);
         currentSequenceIndex.value = 0;
         justWon.value = null;
+
+        const p = prizes.value.find(x => toNum(x.id) === pid);
+        if (p) p.isFinished = false;
+
         saveAllData();
       }
     };
 
     const exportData = () => {
-      const blob = new Blob([JSON.stringify({ participants: participants.value, prizes: prizes.value, winners: winners.value })], { type: 'application/json' });
+      const blob = new Blob([JSON.stringify({
+        participants: participants.value.map(normalizeParticipant),
+        prizes: prizes.value.map(normalizePrize),
+        winners: winners.value.map(normalizeWinner)
+      })], { type: 'application/json' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
       a.download = `INGENI_2026_Backup.json`;
@@ -1377,7 +1582,7 @@ createApp({
     const clearAll = () => { if(confirm('真的要清空所有資料嗎？')) { localStorage.clear(); location.reload(); } };
 
     /* ========================
-       ===== Secret Mode =====
+       ===== Secret Mode（以下不動主要邏輯）
        ======================== */
     const firebaseConfig = {
       apiKey: "AIzaSyBx0poH4TayC2LLwOaO2mmC6d5Fd3yszsE",
@@ -1526,25 +1731,25 @@ createApp({
     const hiddenCandidateAObj = computed(() => {
       const id = hiddenPickedIds.value[0];
       if (!id) return null;
-      return participants.value.find(x => x.id === id) || { id, name: `#${id}`, photo:'' };
+      return participants.value.find(x => toNum(x.id) === toNum(id)) || { id, name: `#${id}`, photo:'' };
     });
     const hiddenCandidateBObj = computed(() => {
       const id = hiddenPickedIds.value[1];
       if (!id) return null;
-      return participants.value.find(x => x.id === id) || { id, name: `#${id}`, photo:'' };
+      return participants.value.find(x => toNum(x.id) === toNum(id)) || { id, name: `#${id}`, photo:'' };
     });
 
     const hiddenAllEligiblePeople = computed(() => {
-      const set = new Set(hiddenAllEligibleIds.value || []);
-      return participants.value.filter(p => set.has(p.id));
+      const set = new Set((hiddenAllEligibleIds.value || []).map(toNum));
+      return participants.value.filter(p => set.has(toNum(p.id)));
     });
     const hiddenRemainingPeople = computed(() => {
-      const ex = new Set(hiddenExcludedIds.value || []);
-      return hiddenAllEligiblePeople.value.filter(p => !ex.has(p.id));
+      const ex = new Set((hiddenExcludedIds.value || []).map(toNum));
+      return hiddenAllEligiblePeople.value.filter(p => !ex.has(toNum(p.id)));
     });
     const hiddenWonPeople = computed(() => {
-      const ex = new Set(hiddenExcludedIds.value || []);
-      return hiddenAllEligiblePeople.value.filter(p => ex.has(p.id));
+      const ex = new Set((hiddenExcludedIds.value || []).map(toNum));
+      return hiddenAllEligiblePeople.value.filter(p => ex.has(toNum(p.id)));
     });
 
     function fbPath(p) { return `sessions/${sessionId.value}/${p}`; }
@@ -1622,7 +1827,7 @@ createApp({
         fbDb.ref(fbPath('hidden/config')).on('value', (snap) => {
           const cfg = snap.val() || {};
           const prizesCfg = cfg.prizes || [];
-          hiddenAllEligibleIds.value = Array.isArray(cfg.eligibleIds) ? cfg.eligibleIds : [];
+          hiddenAllEligibleIds.value = Array.isArray(cfg.eligibleIds) ? cfg.eligibleIds.map(toNum) : [];
 
           const nextCfg = [0,1,2].map(i => {
             const item = prizesCfg[i] || {};
@@ -1640,7 +1845,7 @@ createApp({
         fbDb.ref(fbPath('hidden/state')).on('value', (snap) => {
           const st = snap.val() || {};
           hiddenRound.value = Number(st.currentRound || 1);
-          hiddenExcludedIds.value = Array.isArray(st.excludedIds) ? st.excludedIds : [];
+          hiddenExcludedIds.value = Array.isArray(st.excludedIds) ? st.excludedIds.map(toNum) : [];
           hiddenRoundsData.value = st.rounds || {};
         });
 
@@ -1759,18 +1964,19 @@ createApp({
     }
 
     function loadParticipantsFromLocalStorage() {
-      try { participants.value = JSON.parse(localStorage.getItem('sincere_v2025_users') || '[]'); }
+      try { participants.value = (JSON.parse(localStorage.getItem('sincere_v2025_users') || '[]') || []).map(normalizeParticipant); }
       catch { participants.value = []; }
 
       if (!participants.value.length) {
         alert('讀不到本機名單：請先在「後台管理」新增人員（同一台電腦/同一瀏覽器）');
         return;
       }
-      hiddenEligibleIds.value = participants.value.map(p => p.id);
+      hiddenEligibleIds.value = participants.value.map(p => toNum(p.id));
+      saveAllData();
     }
 
     function selectAllEligible() {
-      hiddenEligibleIds.value = participants.value.map(p => p.id);
+      hiddenEligibleIds.value = participants.value.map(p => toNum(p.id));
     }
 
     function triggerHiddenFile(idx, which, ev) {
@@ -1827,7 +2033,7 @@ createApp({
           { order: 2, name: hiddenPrizeConfig.value[1].name, chanceText: hiddenPrizeConfig.value[1].chanceText, destinyText: hiddenPrizeConfig.value[1].destinyText, chanceImg: hiddenPrizeConfig.value[1].chanceImg, destinyImg: hiddenPrizeConfig.value[1].destinyImg },
           { order: 3, name: hiddenPrizeConfig.value[2].name, chanceText: hiddenPrizeConfig.value[2].chanceText, destinyText: hiddenPrizeConfig.value[2].destinyText, chanceImg: hiddenPrizeConfig.value[2].chanceImg, destinyImg: hiddenPrizeConfig.value[2].destinyImg },
         ],
-        eligibleIds: hiddenEligibleIds.value
+        eligibleIds: hiddenEligibleIds.value.map(toNum)
       });
 
       await ensureHiddenStateInit(true);
@@ -1852,15 +2058,15 @@ createApp({
 
       const cfgSnap = await fbDb.ref(fbPath('hidden/config')).get();
       const cfg = cfgSnap.val() || {};
-      const allEligible = cfg.eligibleIds || [];
+      const allEligible = (cfg.eligibleIds || []).map(toNum);
       if (!allEligible.length) return alert('尚未保存隱藏獎設定（管理員頁按「保存隱藏獎設定」）');
 
       const stSnap = await fbDb.ref(fbPath('hidden/state')).get();
       const st = stSnap.val() || {};
-      const excluded = Array.isArray(st.excludedIds) ? st.excludedIds : [];
+      const excluded = Array.isArray(st.excludedIds) ? st.excludedIds.map(toNum) : [];
 
       const exSet = new Set(excluded);
-      const remain = allEligible.filter(id => !exSet.has(id));
+      const remain = allEligible.filter(id => !exSet.has(toNum(id)));
       if (remain.length < 2) return alert('可抽名單不足 2 人');
 
       hiddenSpinLock.value = true;
@@ -1882,7 +2088,7 @@ createApp({
 
         const finalPick = uniquePick2(remain);
         if (!finalPick) { hiddenSpinLock.value = false; return alert('抽取失敗，請再試一次'); }
-        const [a, b] = finalPick;
+        const [a, b] = finalPick.map(toNum);
 
         await fbDb.ref(fbPath('hidden/state')).transaction((cur) => {
           const s = cur || { currentRound: 1, excludedIds: [], rounds: {} };
@@ -1893,7 +2099,7 @@ createApp({
           if (Array.isArray(rr.pickedIds) && rr.pickedIds.length === 2) return s;
 
           rounds[key] = { ...rr, pickedIds: [a, b], pickedAt: Date.now(), cardRevealed: false, cardChosen: null };
-          const oldEx = Array.isArray(s.excludedIds) ? s.excludedIds : [];
+          const oldEx = Array.isArray(s.excludedIds) ? s.excludedIds.map(toNum) : [];
           const newEx = Array.from(new Set([...oldEx, a, b]));
           return { ...s, rounds, excludedIds: newEx };
         });
@@ -1951,8 +2157,8 @@ createApp({
     function openHiddenSummaryModal() {
       const rows = [1,2,3].map(r => {
         const rr = hiddenRoundsData.value[String(r)] || {};
-        const ids = rr.pickedIds || [];
-        const names = ids.map(id => participants.value.find(x => x.id === id)?.name || `#${id}`);
+        const ids = (rr.pickedIds || []).map(toNum);
+        const names = ids.map(id => participants.value.find(x => toNum(x.id) === toNum(id))?.name || `#${id}`);
         const prizeName = (hiddenPrizeConfig.value[r-1]?.name || '').trim() || `獎項${r}`;
         return { round: r, prize: prizeName, winners: names };
       });

@@ -20,24 +20,61 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap');
 
-    /* ===== Global（修正：背景不要黑） ===== */
+    /* ===== Global（改成賽博龐克舞台底，但保持原結構不動） ===== */
+    html, body { height:100%; }
     body{
       font-family: 'Noto Sans TC', sans-serif;
       color:#fff;
       overflow-x:hidden;
-
-      /* 更偏紫藍、亮一點的舞台底，不是純黑 */
       background:
-        radial-gradient(1000px 680px at 18% 15%, rgba(168,85,247,.18), transparent 60%),
-        radial-gradient(1000px 680px at 82% 18%, rgba(59,130,246,.16), transparent 62%),
-        radial-gradient(1200px 860px at 50% 95%, rgba(236,72,153,.14), transparent 60%),
-        linear-gradient(180deg, #141133, #101640 55%, #0f1233);
+        radial-gradient(1200px 820px at 18% 15%, rgba(0,255,255,.10), transparent 62%),
+        radial-gradient(1200px 820px at 82% 18%, rgba(255,0,153,.10), transparent 64%),
+        radial-gradient(1400px 900px at 50% 95%, rgba(168,85,247,.12), transparent 60%),
+        linear-gradient(180deg, #0b0720, #0a0d2a 55%, #070819);
+    }
+
+    /* 只加皮膚：掃描線 + 霓虹網格 + 雜訊（疊在 #app 上） */
+    .cyber-wrap{
+      position:relative;
+      isolation:isolate;
+    }
+    .cyber-wrap:before{
+      content:"";
+      position:fixed; inset:0;
+      background:
+        linear-gradient(transparent 0 70%, rgba(255,255,255,.04) 70% 71%, transparent 71% 100%),
+        radial-gradient(900px 600px at 50% 20%, rgba(0,255,255,.08), transparent 60%),
+        radial-gradient(900px 600px at 50% 85%, rgba(255,0,153,.07), transparent 65%);
+      background-size: 100% 10px, auto, auto;
+      mix-blend-mode: screen;
+      opacity:.55;
+      pointer-events:none;
+      z-index:-1;
+    }
+    .cyber-wrap:after{
+      content:"";
+      position:fixed; inset:-2px;
+      background:
+        linear-gradient(90deg, rgba(0,255,255,.06), transparent 25%, rgba(255,0,153,.05) 55%, transparent 75%, rgba(168,85,247,.05)),
+        repeating-linear-gradient(0deg, rgba(255,255,255,.02), rgba(255,255,255,.02) 1px, transparent 1px, transparent 7px);
+      mix-blend-mode: overlay;
+      opacity:.35;
+      filter: blur(.2px);
+      pointer-events:none;
+      z-index:-1;
+      animation: drift 10s linear infinite;
+    }
+    @keyframes drift{
+      0%{ transform:translate3d(0,0,0); }
+      50%{ transform:translate3d(-8px,10px,0); }
+      100%{ transform:translate3d(0,0,0); }
     }
 
     .glass-card{
-      background: rgba(255,255,255,0.04);
+      background: rgba(255,255,255,0.045);
       backdrop-filter: blur(20px);
       border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 20px 80px rgba(0,0,0,.25);
     }
     .gold-text{
       background: linear-gradient(to bottom, #fff 20%, #fbbf24 100%);
@@ -54,10 +91,10 @@
     /* ===== Secret Mode Palette ===== */
     .neon-bg{
       background:
-        radial-gradient(900px 560px at 20% 15%, rgba(59,130,246,0.22), transparent 60%),
-        radial-gradient(900px 560px at 80% 18%, rgba(236,72,153,0.18), transparent 62%),
-        radial-gradient(1000px 720px at 50% 95%, rgba(168,85,247,0.16), transparent 60%),
-        linear-gradient(180deg, rgba(18,22,60,.85), rgba(16,20,58,.88));
+        radial-gradient(900px 560px at 20% 15%, rgba(0,255,255,0.13), transparent 60%),
+        radial-gradient(900px 560px at 80% 18%, rgba(255,0,153,0.11), transparent 62%),
+        radial-gradient(1000px 720px at 50% 95%, rgba(168,85,247,0.14), transparent 60%),
+        linear-gradient(180deg, rgba(12,14,38,.86), rgba(10,12,34,.90));
       border: 1px solid rgba(255,255,255,0.10);
     }
     .neon-border{ position:relative; }
@@ -66,12 +103,13 @@
       position:absolute; inset:-1px;
       border-radius: inherit;
       padding:1px;
-      background: linear-gradient(120deg, rgba(59,130,246,.62), rgba(236,72,153,.42), rgba(168,85,247,.40), rgba(251,191,36,.22));
+      background: linear-gradient(120deg, rgba(0,255,255,.55), rgba(255,0,153,.40), rgba(168,85,247,.36), rgba(251,191,36,.20));
       -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
       -webkit-mask-composite: xor;
       mask-composite: exclude;
       pointer-events:none;
     }
+
     .btn-neon{
       border-radius:999px;
       padding: 12px 18px;
@@ -88,16 +126,17 @@
 
     .btn-cyan{
       color:#001018;
-      background: linear-gradient(90deg, rgba(59,130,246,1), rgba(147,197,253,1));
-      border-color: rgba(59,130,246,.55);
-      box-shadow: 0 16px 50px rgba(59,130,246,.18);
+      background: linear-gradient(90deg, rgba(0,255,255,1), rgba(147,197,253,1));
+      border-color: rgba(0,255,255,.40);
+      box-shadow: 0 16px 55px rgba(0,255,255,.14);
     }
     .btn-pink{
-      color:#220014;
-      background: linear-gradient(90deg, rgba(236,72,153,1), rgba(251,113,133,1));
-      border-color: rgba(236,72,153,.55);
-      box-shadow: 0 16px 50px rgba(236,72,153,.14);
+      color:#240013;
+      background: linear-gradient(90deg, rgba(255,0,153,1), rgba(251,113,133,1));
+      border-color: rgba(255,0,153,.40);
+      box-shadow: 0 16px 55px rgba(255,0,153,.12);
     }
+
     .secret-sub{
       color: rgba(255,255,255,.65);
       font-weight:900;
@@ -120,14 +159,14 @@
     .progress > div{
       height:100%;
       width:0%;
-      background: linear-gradient(90deg, rgba(59,130,246,1), rgba(236,72,153,1));
+      background: linear-gradient(90deg, rgba(0,255,255,1), rgba(255,0,153,1));
       transition: width .25s ease;
     }
     .ticker{
       font-size: clamp(22px, 3.2vw, 44px);
       font-weight:900;
       letter-spacing:.04em;
-      text-shadow: 0 0 18px rgba(59,130,246,.12);
+      text-shadow: 0 0 22px rgba(0,255,255,.10);
       overflow:hidden;
       text-overflow:ellipsis;
       white-space:nowrap;
@@ -158,27 +197,28 @@
     }
     .cardFront{
       transform: rotateY(180deg);
-      background: linear-gradient(180deg, rgba(59,130,246,.22), rgba(236,72,153,.12));
-      border: 1px solid rgba(59,130,246,.30);
+      background: linear-gradient(180deg, rgba(0,255,255,.16), rgba(255,0,153,.10));
+      border: 1px solid rgba(0,255,255,.22);
     }
 
-    /* Switch overlay */
+    /* Switch overlay（已存在：加強成舞台燈光切換） */
     .switch-mask{
       position:fixed; inset:0;
       z-index:9998;
       background:
-        radial-gradient(800px 500px at 50% 40%, rgba(236,72,153,.24), transparent 60%),
-        radial-gradient(900px 600px at 50% 60%, rgba(59,130,246,.26), transparent 62%),
-        rgba(10,12,30,.55);
+        radial-gradient(900px 520px at 20% 40%, rgba(0,255,255,.24), transparent 60%),
+        radial-gradient(900px 520px at 80% 50%, rgba(255,0,153,.22), transparent 62%),
+        radial-gradient(1100px 700px at 50% 70%, rgba(168,85,247,.20), transparent 65%),
+        rgba(6,7,18,.62);
       display:flex; align-items:center; justify-content:center;
-      backdrop-filter: blur(10px);
+      backdrop-filter: blur(12px);
       animation: flashIn .55s ease forwards;
     }
     @keyframes flashIn{ from{ opacity:0; transform:scale(1.02);} to{ opacity:1; transform:scale(1);} }
     .switch-card{
       width: min(880px, 92vw);
       border-radius: 28px;
-      background: rgba(20,24,60,.90);
+      background: rgba(10,12,34,.92);
       border: 1px solid rgba(255,255,255,.14);
       box-shadow: 0 30px 110px rgba(0,0,0,.45);
       padding: 18px;
@@ -186,12 +226,43 @@
     }
     @keyframes pop{ from{ opacity:0; transform:translateY(18px) scale(.98);} to{ opacity:1; transform:translateY(0) scale(1);} }
 
+    /* 轉場：舞台燈光切換（特效層，不動結構） */
+    .stage-light-mask{
+      position:fixed; inset:0;
+      z-index:9997;
+      pointer-events:none;
+      backdrop-filter: blur(6px);
+      background: rgba(0,0,0,.25);
+      animation: lightFade .9s ease forwards;
+    }
+    @keyframes lightFade{
+      0%{ opacity:0; }
+      15%{ opacity:1; }
+      100%{ opacity:0; }
+    }
+    .stage-light-beams{
+      position:absolute; inset:-20%;
+      background:
+        radial-gradient(700px 420px at 25% 35%, rgba(0,255,255,.25), transparent 60%),
+        radial-gradient(700px 420px at 75% 38%, rgba(255,0,153,.22), transparent 60%),
+        radial-gradient(900px 520px at 50% 65%, rgba(168,85,247,.18), transparent 66%),
+        conic-gradient(from 180deg at 50% 50%, rgba(0,255,255,.10), rgba(255,0,153,.10), rgba(168,85,247,.08), rgba(0,255,255,.10));
+      filter: blur(8px) saturate(1.25);
+      mix-blend-mode: screen;
+      animation: sweep 0.9s ease forwards;
+    }
+    @keyframes sweep{
+      0%{ transform: translateY(10px) scale(1.02) rotate(-2deg); opacity:0.0; }
+      25%{ opacity:1; }
+      100%{ transform: translateY(-14px) scale(1.06) rotate(2deg); opacity:0.0; }
+    }
+
     .big-prize{
       font-size: clamp(34px, 5vw, 72px);
       font-weight: 900;
       letter-spacing: .06em;
       line-height: 1.05;
-      text-shadow: 0 0 26px rgba(59,130,246,.18), 0 0 36px rgba(236,72,153,.14);
+      text-shadow: 0 0 26px rgba(0,255,255,.14), 0 0 36px rgba(255,0,153,.12);
     }
 
     .candidate-card{
@@ -206,7 +277,6 @@
       gap:16px;
       min-height: 142px;
     }
-    /* 2) 中獎人頭像加大 */
     .avatar{
       width: 140px; height: 140px;
       border-radius: 28px;
@@ -214,6 +284,7 @@
       border: 1px solid rgba(255,255,255,.16);
       background: rgba(0,0,0,.18);
       flex-shrink:0;
+      position:relative;
     }
     .avatar img{ width:100%; height:100%; object-fit:cover; }
 
@@ -237,7 +308,7 @@
       z-index: 5;
     }
 
-    /* 6) QR：穩定顯示（img），自動 fallback 到 qrserver */
+    /* QR：穩定顯示（img），自動 fallback 到 qrserver */
     .qr-img{
       width: 260px; height: 260px;
       background:#fff;
@@ -255,7 +326,7 @@
       filter: drop-shadow(0 0 14px rgba(251,191,36,.25));
     }
 
-    /* 3) 參賽者名單：更大 + 中獎酷炫標記 */
+    /* 參賽者名單：更大 + 中獎酷炫標記 */
     .pool-pill{
       border-radius: 22px;
       border: 1px solid rgba(255,255,255,.12);
@@ -267,7 +338,6 @@
       transition: transform .12s ease, filter .12s ease, opacity .12s ease;
     }
     .pool-pill:hover{ transform: translateY(-1px); }
-
     .pool-ava{
       width: 64px; height: 64px;
       border-radius: 18px;
@@ -281,13 +351,13 @@
     .won{
       position: relative;
       border-color: rgba(251,191,36,.55);
-      background: linear-gradient(180deg, rgba(251,191,36,.16), rgba(236,72,153,.10));
+      background: linear-gradient(180deg, rgba(251,191,36,.16), rgba(255,0,153,.08));
       box-shadow: 0 18px 70px rgba(251,191,36,.10);
       animation: wonPulse 1.8s ease-in-out infinite;
     }
     @keyframes wonPulse{
       0%,100% { filter: drop-shadow(0 0 0 rgba(251,191,36,.0)); }
-      50% { filter: drop-shadow(0 0 16px rgba(251,191,36,.18)); }
+      50% { filter: drop-shadow(0 0 18px rgba(251,191,36,.18)); }
     }
     .won-badge{
       font-size: 11px;
@@ -300,24 +370,70 @@
       border: 1px solid rgba(255,255,255,.20);
       box-shadow: 0 18px 50px rgba(251,191,36,.12);
     }
-    .dimmed{
-      opacity: .55;
-      filter: saturate(.8);
+
+    /* 冠軍光環 + 粒子環繞（只加 class，不動結構） */
+    .champion-halo{
+      position:relative;
     }
+    .champion-halo:before{
+      content:"";
+      position:absolute;
+      inset:-18px;
+      border-radius: 999px;
+      background:
+        radial-gradient(circle at 50% 50%, rgba(251,191,36,.25), transparent 62%),
+        radial-gradient(circle at 40% 35%, rgba(0,255,255,.18), transparent 58%),
+        radial-gradient(circle at 60% 65%, rgba(255,0,153,.14), transparent 60%);
+      filter: blur(2px);
+      opacity:.95;
+      animation: haloBreath 2.2s ease-in-out infinite;
+      pointer-events:none;
+    }
+    @keyframes haloBreath{
+      0%,100%{ transform:scale(1); opacity:.75; }
+      50%{ transform:scale(1.05); opacity:1; }
+    }
+    .particle-ring{
+      position:relative;
+    }
+    .particle-ring:after{
+      content:"";
+      position:absolute;
+      inset:-26px;
+      border-radius: 999px;
+      background:
+        conic-gradient(from 0deg, rgba(251,191,36,.0), rgba(251,191,36,.55), rgba(0,255,255,.35), rgba(255,0,153,.30), rgba(251,191,36,.0));
+      -webkit-mask:
+        radial-gradient(circle, transparent 57%, #000 58% 62%, transparent 63%);
+      mask:
+        radial-gradient(circle, transparent 57%, #000 58% 62%, transparent 63%);
+      filter: blur(.2px) drop-shadow(0 0 22px rgba(251,191,36,.14));
+      animation: spinRing 1.7s linear infinite;
+      pointer-events:none;
+      opacity:.9;
+    }
+    @keyframes spinRing{
+      0%{ transform:rotate(0deg); }
+      100%{ transform:rotate(360deg); }
+    }
+
+    /* 讓「尾牙抽大的」更大（你原本已做） */
   </style>
 </head>
 
 <body>
-<div id="app" class="min-h-screen flex flex-col p-6">
+<div id="app" class="cyber-wrap min-h-screen flex flex-col p-6">
 
   <!-- Header（玩家頁會自動隱藏） -->
   <header v-if="view !== 'player'"
           class="flex justify-between items-center mb-4 border-b border-white/12 pb-4">
     <div class="flex items-center gap-3">
-      <!-- 4) 改名 -->
-      <h1 class="text-2xl font-black italic text-amber-400 tracking-widest uppercase">
-        2026新肌霓真大尾牙
-      </h1>
+      <!-- 2) 改成後台上傳 Logo（localStorage） -->
+      <div class="flex items-center gap-3">
+        <img v-if="brandLogo" :src="brandLogo" alt="LOGO"
+             class="h-9 md:h-10 object-contain drop-shadow-[0_0_18px_rgba(255,0,153,.18)]">
+        <div v-else class="text-white/40 font-black tracking-widest uppercase"></div>
+      </div>
     </div>
 
     <nav class="flex gap-4 items-center">
@@ -341,7 +457,12 @@
     </nav>
   </header>
 
-  <!-- 模式切換動畫遮罩 -->
+  <!-- 舞台燈光切換（特效層） -->
+  <div v-if="stageLightFlash" class="stage-light-mask">
+    <div class="stage-light-beams"></div>
+  </div>
+
+  <!-- 模式切換動畫遮罩（已存在） -->
   <div v-if="modeSwitchFlash" class="switch-mask">
     <div class="switch-card neon-border">
       <div class="secret-sub text-center">secret mode</div>
@@ -389,7 +510,6 @@
           <div class="glass-card rounded-2xl p-4 border border-white/10">
             <div class="secret-sub">全場集氣</div>
             <div class="ticker mt-1">{{ secretTotalPoints.toLocaleString('zh-TW') }}</div>
-            <!-- 1) 集氣條修復：直接綁 computed -->
             <div class="progress mt-3"><div :style="{width: secretProgressPct + '%'}"></div></div>
             <div class="mt-2 text-white/65 font-black">目標：{{ secretTargetPoints.toLocaleString('zh-TW') }}</div>
           </div>
@@ -406,7 +526,6 @@
 
         <div class="glass-card rounded-2xl p-4 border border-white/10 mt-4">
           <div class="secret-sub">top 排行</div>
-          <!-- 1) TOP 排名修復：改成直接監聽 players node 的 computedTop10 -->
           <div class="mt-3 grid gap-2">
             <div v-for="(t, idx) in secretTop10" :key="idx"
                  class="glass-card rounded-xl px-3 py-2 border border-white/10 flex justify-between items-center">
@@ -439,14 +558,12 @@
           </div>
         </div>
 
-        <!-- QR 置中最顯眼 -->
         <div class="mt-6 flex flex-col items-center">
           <div class="glass-card neon-border rounded-[26px] p-5 w-full max-w-[520px] text-center">
             <div class="secret-sub">scan to join</div>
             <div class="mt-2 text-white/75 font-bold">掃碼加入集氣</div>
 
             <div class="mt-4 flex justify-center">
-              <!-- 6) QR：只用 img，且內建 fallback -->
               <img :src="qrStageSrc" class="qr-img" alt="QR" @error="forceQrStageFallback">
             </div>
           </div>
@@ -485,7 +602,6 @@
           </div>
         </div>
 
-        <!-- 回主舞台：固定頁面最下面 -->
         <div class="stage-bottom-bar">
           <div class="flex justify-center">
             <button class="btn-neon" @click="changeView('stage')">
@@ -505,10 +621,9 @@
           </div>
         </div>
 
-        <!-- 2) 候選人改成「中獎人」+ 頭像加大 -->
         <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="candidate-card neon-border">
-            <div class="avatar">
+            <div class="avatar champion-halo particle-ring">
               <img v-if="hiddenCandidateAObj?.photo" :src="hiddenCandidateAObj.photo" alt="">
             </div>
             <div class="min-w-0">
@@ -518,7 +633,7 @@
           </div>
 
           <div class="candidate-card neon-border">
-            <div class="avatar">
+            <div class="avatar champion-halo particle-ring">
               <img v-if="hiddenCandidateBObj?.photo" :src="hiddenCandidateBObj.photo" alt="">
             </div>
             <div class="min-w-0">
@@ -528,7 +643,6 @@
           </div>
         </div>
 
-        <!-- 3) 參賽者顯示：會隨中獎減少（remaining）+ 已中獎酷炫區塊 -->
         <div class="glass-card neon-border rounded-[26px] p-5 mt-4">
           <div class="secret-sub text-center">本獎項參賽者</div>
 
@@ -555,7 +669,6 @@
           </div>
         </div>
 
-        <!-- 翻牌區（抽取後會自動切到 cards） -->
         <div class="mt-5">
           <div v-if="hiddenStageStep === 'cards'" class="glass-card neon-border rounded-[26px] p-5">
             <div class="text-center text-white/75 font-bold mb-5">
@@ -607,7 +720,6 @@
             </div>
           </div>
 
-          <!-- 底部按鈕列 -->
           <div class="stage-bottom-bar">
             <div class="flex justify-center gap-3 flex-wrap">
               <button class="btn-neon btn-pink"
@@ -630,7 +742,6 @@
           </div>
         </div>
 
-        <!-- 三輪結束 Modal -->
         <div v-if="hiddenSummaryOpen" class="fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center p-5">
           <div class="w-full max-w-[820px] rounded-[28px] bg-[rgba(20,24,60,.92)] border border-white/15 shadow-[0_30px_90px_rgba(0,0,0,.35)] backdrop-blur-xl p-5">
             <div class="flex justify-between items-center gap-3">
@@ -690,7 +801,6 @@
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4">
-        <!-- 左：集氣設定 -->
         <section class="glass-card neon-border rounded-[26px] p-5 lg:col-span-2">
           <div class="flex flex-wrap justify-between items-start gap-3">
             <div>
@@ -745,7 +855,6 @@
           <div v-if="fbError" class="mt-4 text-red-300 font-black">Firebase 錯誤：{{ fbError }}</div>
         </section>
 
-        <!-- 右：隱藏獎設定 -->
         <section class="glass-card neon-border rounded-[26px] p-5">
           <div class="secret-sub">hidden prize config</div>
           <div class="text-xl font-black mt-2">隱藏獎（順序 3 個）</div>
@@ -831,19 +940,17 @@
   <!-- 主舞台 -->
   <main v-if="view === 'stage'" class="flex-1 flex flex-col">
 
-    <!-- Step 1: 選擇獎項 -->
     <div v-if="stageStep === 'select'" class="flex-1 flex flex-col items-center justify-center">
       <div class="flex items-center gap-3 mb-4">
         <h1 class="text-6xl md:text-8xl font-black gold-text tracking-tighter">新肌霓2026</h1>
 
-        <!-- Secret icon -->
         <button @click="changeView('secretStage')"
                 class="hover:scale-105 active:scale-100 transition"
                 title="Secret Mode">
           <svg class="spark-ico" viewBox="0 0 24 24" fill="none">
             <path d="M12 2l1.6 5.3L19 9l-5.4 1.7L12 16l-1.6-5.3L5 9l5.4-1.7L12 2z" fill="rgba(251,191,36,1)"/>
-            <path d="M19 14l.9 3 3.1 1-3.1 1-.9 3-.9-3L16 18l3.1-1L19 14z" fill="rgba(59,130,246,1)"/>
-            <path d="M4.5 14l.7 2.3 2.3.7-2.3.7-.7 2.3-.7-2.3-2.3-.7 2.3-.7.7-2.3z" fill="rgba(236,72,153,1)"/>
+            <path d="M19 14l.9 3 3.1 1-3.1 1-.9 3-.9-3L16 18l3.1-1L19 14z" fill="rgba(0,255,255,1)"/>
+            <path d="M4.5 14l.7 2.3 2.3.7-2.3.7-.7 2.3-.7-2.3-2.3-.7 2.3-.7.7-2.3z" fill="rgba(255,0,153,1)"/>
           </svg>
         </button>
       </div>
@@ -861,7 +968,6 @@
       </div>
     </div>
 
-    <!-- Step 2: 預備與揭曉 -->
     <div v-if="stageStep === 'preview'" class="flex-1 flex flex-col items-center justify-center text-center px-4 relative">
       <h2 class="text-8xl font-black gold-text mb-12 tracking-tighter">{{ activePrize.name }}</h2>
 
@@ -893,7 +999,6 @@
       </div>
     </div>
 
-    <!-- Step 3: 逐一抽獎 -->
     <div v-if="stageStep === 'drawing'" class="flex-1 flex flex-row gap-8 w-full relative">
       <button @click="stageStep = 'select'"
               class="absolute -top-12 left-0 text-white/65 hover:text-white transition text-sm font-bold">
@@ -949,9 +1054,12 @@
 
         <div v-else-if="justWon" class="flex flex-col items-center winner-card">
           <p class="text-amber-300 font-black mb-6 tracking-[0.5em] uppercase text-2xl italic">Congratulations!</p>
-          <div class="w-[450px] h-[450px] rounded-full overflow-hidden border-[20px] border-amber-400 shadow-[0_0_80px_rgba(245,158,11,0.35)] mb-10">
+
+          <!-- 3) 冠軍光環 + 粒子環繞（只加 class） -->
+          <div class="w-[450px] h-[450px] rounded-full overflow-hidden border-[20px] border-amber-400 shadow-[0_0_80px_rgba(245,158,11,0.35)] mb-10 champion-halo particle-ring">
             <img :src="justWon.photo" class="w-full h-full object-cover">
           </div>
+
           <h2 class="text-9xl font-black gold-text italic tracking-tighter">{{ justWon.name }}</h2>
 
           <div v-if="!isAllDone" class="mt-12">
@@ -1017,6 +1125,38 @@
 
     <section class="glass-card p-8 rounded-[40px]">
       <h2 class="text-2xl font-bold mb-6 italic text-amber-400">獎項管理</h2>
+
+      <!-- 2) 後台上傳 Logo（localStorage） -->
+      <div class="glass-card p-5 rounded-[28px] border border-white/10 mb-6">
+        <div class="flex items-center justify-between gap-3 flex-wrap">
+          <div>
+            <div class="text-sm font-black text-white/70 tracking-widest uppercase">品牌 Logo</div>
+            <div class="text-xs font-bold text-white/45 mt-1">上傳後會顯示在頂部 Header</div>
+          </div>
+
+          <div class="flex items-center gap-2 flex-wrap">
+            <input type="file" ref="logoInput" class="hidden" accept="image/*" @change="handleLogo">
+            <button @click="$refs.logoInput.click()"
+                    class="bg-white/5 hover:bg-white/10 px-5 py-3 rounded-2xl font-black text-white border border-white/10">
+              上傳 Logo
+            </button>
+            <button v-if="brandLogo"
+                    @click="clearLogo"
+                    class="bg-red-500/20 hover:bg-red-500/25 px-5 py-3 rounded-2xl font-black text-red-200 border border-white/10">
+              移除
+            </button>
+          </div>
+        </div>
+
+        <div v-if="brandLogo" class="mt-4 flex items-center gap-4">
+          <div class="w-40 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden">
+            <img :src="brandLogo" class="w-full h-full object-contain">
+          </div>
+          <div class="text-xs font-bold text-white/50">
+            建議：透明背景 PNG（若 SVG 無法讀取就轉 PNG）
+          </div>
+        </div>
+      </div>
 
       <div class="bg-white/5 p-8 rounded-[40px] border border-white/10 mb-8">
         <h3 class="text-amber-300 font-bold mb-4 uppercase tracking-widest italic">
@@ -1106,9 +1246,6 @@ const { createApp, ref, computed, nextTick, onMounted, watch } = Vue;
 
 createApp({
   setup() {
-    /* ========================
-       URL mode（玩家 / secret bypass）
-       ======================== */
     const url = new URL(location.href);
     const qPlayer = url.searchParams.get('player') === '1';
     const qSecret = url.searchParams.get('secret') === '1';
@@ -1118,6 +1255,58 @@ createApp({
     const stageStep = ref('select');
     const contentRevealed = ref(false);
     const isProcessing = ref(false);
+
+    /* ===== 2) Brand Logo (localStorage) ===== */
+    const brandLogo = ref(localStorage.getItem('ingeni_2026_brand_logo') || '');
+
+    function resizeLogoToDataURL(file, maxW=520, maxH=180){
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const img = new Image();
+          img.onload = () => {
+            const w = img.width, h = img.height;
+            const scale = Math.min(1, maxW / w, maxH / h);
+            const nw = Math.max(1, Math.round(w * scale));
+            const nh = Math.max(1, Math.round(h * scale));
+
+            const canvas = document.createElement('canvas');
+            canvas.width = nw; canvas.height = nh;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0,0,nw,nh);
+            ctx.drawImage(img, 0, 0, nw, nh);
+
+            resolve(canvas.toDataURL('image/png')); // logo 用 png
+          };
+          img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function handleLogo(e){
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const dataUrl = await resizeLogoToDataURL(file, 520, 180);
+      brandLogo.value = dataUrl;
+      localStorage.setItem('ingeni_2026_brand_logo', dataUrl);
+      e.target.value = '';
+    }
+
+    function clearLogo(){
+      brandLogo.value = '';
+      localStorage.removeItem('ingeni_2026_brand_logo');
+    }
+
+    /* ===== 舞台燈光切換（特效層） ===== */
+    const stageLightFlash = ref(false);
+    function flashStageLights(){
+      stageLightFlash.value = false;
+      requestAnimationFrame(() => {
+        stageLightFlash.value = true;
+        setTimeout(() => { stageLightFlash.value = false; }, 900);
+      });
+    }
 
     /* ========================
        原本 localStorage 資料
@@ -1264,26 +1453,31 @@ createApp({
     const revealPrize = () => {
       contentRevealed.value = true;
       confetti({ particleCount: 50, spread: 60, origin: { y: 0.3 } });
+      flashStageLights();
     };
 
     const startOneSpin = () => {
       if (currentEligiblePool.value.length === 0) return alert('沒人可以抽了');
+      flashStageLights();
       isSpinning.value = true;
       justWon.value = null;
+
       const timer = setInterval(() => {
         const idx = Math.floor(Math.random() * currentEligiblePool.value.length);
         currentSpinId.value = currentEligiblePool.value[idx].id;
       }, 80);
+
       setTimeout(() => {
         clearInterval(timer);
         const winner = currentEligiblePool.value.find(p => p.id === currentSpinId.value);
         nextTick(() => {
+          flashStageLights();
           justWon.value = winner;
           drawSequence.value[currentSequenceIndex.value].winner = winner;
           winners.value = [...winners.value, { userId: winner.id, prizeId: activePrize.value.id }];
           isSpinning.value = false;
           saveAllData();
-          confetti({ particleCount: 200, spread: 100, origin: { y: 0.5 } });
+          confetti({ particleCount: 220, spread: 120, origin: { y: 0.52 } });
         });
       }, 3000);
     };
@@ -1295,6 +1489,7 @@ createApp({
         activePrize.value.isFinished = true;
         saveAllData();
       }
+      flashStageLights();
     };
 
     const completeAll = () => { stageStep.value = 'select'; };
@@ -1306,6 +1501,7 @@ createApp({
         currentSequenceIndex.value = 0;
         justWon.value = null;
         saveAllData();
+        flashStageLights();
       }
     };
 
@@ -1342,7 +1538,7 @@ createApp({
     const secretTotalPoints = ref(0);
     const secretTargetInput = ref(5000);
 
-    const playersMap = ref({}); // 1) 用這個修 TOP 排名
+    const playersMap = ref({});
     const secretTop10 = computed(() => {
       const m = playersMap.value || {};
       const arr = Object.keys(m).map(uid => ({
@@ -1374,7 +1570,7 @@ createApp({
     let playerFlushTimer = null;
 
     const hiddenEligibleIds = ref([]);
-    const hiddenAllEligibleIds = ref([]); // 保存到 firebase 的 eligibleIds（前台顯示用）
+    const hiddenAllEligibleIds = ref([]);
     const hiddenPrizeConfig = ref([
       { name:'', chanceText:'', destinyText:'', chanceImg:'', destinyImg:'' },
       { name:'', chanceText:'', destinyText:'', chanceImg:'', destinyImg:'' },
@@ -1386,7 +1582,7 @@ createApp({
     const hiddenExcludedIds = ref([]);
     const hiddenRoundsData = ref({});
 
-    const hiddenStageStep = ref('pick'); // pick / cards
+    const hiddenStageStep = ref('pick');
     const hiddenFlipChance = ref(false);
     const hiddenFlipDestiny = ref(false);
 
@@ -1397,7 +1593,6 @@ createApp({
     const modeSwitchFlash = ref(false);
     let lastMode = 'minigame';
 
-    /* ===== QR sources（6：先 DataURL，失敗就 fallback 服務） ===== */
     const qrStageSrc = ref('');
     const qrAdminSrc = ref('');
 
@@ -1478,7 +1673,6 @@ createApp({
       return participants.value.find(x => x.id === id) || { id, name: `#${id}`, photo:'' };
     });
 
-    /* 3) 參賽者名單：remaining 會隨 excluded 減少 + won 清單 */
     const hiddenAllEligiblePeople = computed(() => {
       const set = new Set(hiddenAllEligibleIds.value || []);
       return participants.value.filter(p => set.has(p.id));
@@ -1504,6 +1698,7 @@ createApp({
     function doModeSwitchFx() {
       try {
         modeSwitchFlash.value = true;
+        flashStageLights();
         confetti({ particleCount: 120, spread: 80, origin: { y: 0.55 } });
         setTimeout(() => confetti({ particleCount: 180, spread: 110, origin: { y: 0.45 } }), 220);
         setTimeout(() => confetti({ particleCount: 220, spread: 140, origin: { y: 0.35 } }), 420);
@@ -1511,7 +1706,6 @@ createApp({
       } catch { modeSwitchFlash.value = false; }
     }
 
-    /* 1) 修復集氣條 / TOP：在任何前台/後台 view 都監聽 players + minigame */
     async function initFirebaseIfNeeded() {
       if (fbReady.value) return true;
       if (!(view.value === 'player' || view.value === 'secretStage' || view.value === 'secretAdmin')) return false;
@@ -1525,7 +1719,6 @@ createApp({
         fbReady.value = true;
         fbError.value = '';
 
-        // mode
         fbDb.ref(fbPath('mode')).on('value', (snap) => {
           const m = snap.val() || 'minigame';
           secretMode.value = m;
@@ -1546,7 +1739,6 @@ createApp({
           }
         });
 
-        // minigame data
         fbDb.ref(fbPath('minigame')).on('value', async (snap) => {
           const v = snap.val() || {};
           secretTargetPoints.value = Number(v.targetPoints || 5000);
@@ -1563,12 +1755,10 @@ createApp({
           }
         });
 
-        // players -> TOP 10（不再依賴 minigameTop）
         fbDb.ref(fbPath('players')).on('value', (snap) => {
           playersMap.value = snap.val() || {};
         });
 
-        // hidden config
         fbDb.ref(fbPath('hidden/config')).on('value', (snap) => {
           const cfg = snap.val() || {};
           const prizesCfg = cfg.prizes || [];
@@ -1587,7 +1777,6 @@ createApp({
           hiddenPrizeConfig.value = nextCfg;
         });
 
-        // hidden state
         fbDb.ref(fbPath('hidden/state')).on('value', (snap) => {
           const st = snap.val() || {};
           hiddenRound.value = Number(st.currentRound || 1);
@@ -1595,7 +1784,6 @@ createApp({
           hiddenRoundsData.value = st.rounds || {};
         });
 
-        // player count
         if (view.value === 'player') {
           fbDb.ref(fbPath(`players/${fbUid}/count`)).on('value', (snap) => {
             playerMyCount.value = Number(snap.val() || 0);
@@ -1619,7 +1807,6 @@ createApp({
       }
     }
 
-    /* ===== Player ===== */
     async function playerConfirmName() {
       const ok = await initFirebaseIfNeeded();
       if (!ok) return alert(fbError.value || 'Firebase 尚未就緒');
@@ -1669,12 +1856,12 @@ createApp({
       } catch (e) { console.error(e); }
     }
 
-    /* ===== Admin ===== */
     async function secretHostSaveTarget() {
       const ok = await initFirebaseIfNeeded();
       if (!ok) return alert(fbError.value || 'Firebase 尚未就緒');
       const t = Math.max(1, Math.floor(Number(secretTargetInput.value || 5000)));
       await fbDb.ref(fbPath('minigame')).update({ targetPoints: t });
+      flashStageLights();
     }
 
     async function ensureHiddenStateInit(force=false) {
@@ -1692,7 +1879,7 @@ createApp({
       if (!confirm('確定重置集氣？totalPoints / 排行 / 玩家點擊會歸零')) return;
 
       await fbDb.ref(fbPath('minigame')).update({ totalPoints: 0 });
-      await fbDb.ref(fbPath('players')).remove();      // 1) 排行來源 -> players，重置即歸零
+      await fbDb.ref(fbPath('players')).remove();
       await fbDb.ref(fbPath('mode')).set('minigame');
       await fbDb.ref(fbPath('hidden/state')).set({ currentRound: 1, excludedIds: [], rounds: {} });
 
@@ -1701,6 +1888,7 @@ createApp({
       hiddenFlipDestiny.value = false;
       hiddenRevealNote.value = '';
 
+      flashStageLights();
       confetti({ particleCount: 120, spread: 90, origin: { y: 0.6 } });
     }
 
@@ -1710,6 +1898,7 @@ createApp({
 
       await ensureHiddenStateInit(true);
       await fbDb.ref(fbPath('mode')).set('hiddenPrize');
+      flashStageLights();
     }
 
     function loadParticipantsFromLocalStorage() {
@@ -1785,6 +1974,7 @@ createApp({
       });
 
       await ensureHiddenStateInit(true);
+      flashStageLights();
       alert('隱藏獎設定已保存');
     }
 
@@ -1817,6 +2007,7 @@ createApp({
       const remain = allEligible.filter(id => !exSet.has(id));
       if (remain.length < 2) return alert('可抽名單不足 2 人');
 
+      flashStageLights();
       hiddenSpinLock.value = true;
       hiddenStageStep.value = 'pick';
       hiddenFlipChance.value = false;
@@ -1854,6 +2045,7 @@ createApp({
 
         hiddenSpinLock.value = false;
 
+        flashStageLights();
         confetti({ particleCount: 150, spread: 100, origin: { y: 0.55 } });
         setTimeout(() => confetti({ particleCount: 220, spread: 140, origin: { y: 0.45 } }), 250);
 
@@ -1885,6 +2077,7 @@ createApp({
       });
 
       hiddenRevealNote.value = '已揭曉本輪獎項內容';
+      flashStageLights();
       confetti({ particleCount: 180, spread: 110, origin: { y: 0.45 } });
 
       if (hiddenRound.value === 3) setTimeout(() => openHiddenSummaryModal(), 650);
@@ -1899,6 +2092,7 @@ createApp({
       hiddenRevealNote.value = '';
 
       await fbDb.ref(fbPath('hidden/state')).update({ currentRound: hiddenRound.value + 1 });
+      flashStageLights();
       confetti({ particleCount: 110, spread: 85, origin: { y: 0.6 } });
     }
 
@@ -1918,6 +2112,7 @@ createApp({
       hiddenSummaryOpen.value = false;
       changeView('stage');
       stageStep.value = 'select';
+      flashStageLights();
     }
 
     onMounted(async () => {
@@ -1943,6 +2138,12 @@ createApp({
 
       view, changeView, stageStep, contentRevealed, isProcessing,
       secretUnlocked,
+
+      // logo
+      brandLogo, handleLogo, clearLogo,
+
+      // effects
+      stageLightFlash,
 
       participants, prizes, winners,
       newUser, tempMainPrize, editingId,
